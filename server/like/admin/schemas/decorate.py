@@ -7,14 +7,16 @@ from pydantic import BaseModel, Field
 
 class DecoratePageSaveIn(BaseModel):
     id: int = Query(gt=0)
-    page_type: int = Query(alias='pageType')
-    page_data: str = Query(alias='pageData')
+    page_type: int = Field(alias='pageType')
+    page_data: str = Field(alias='pageData')
 
 
 class DecoratePageDetailOut(BaseModel):
     id: int
     page_type: int
     page_data: str
+    class Config:
+        from_attributes = True
 
 
 class DecorateDataArticleIn(BaseModel):
@@ -46,6 +48,8 @@ class DecorateTabbarList(BaseModel):
 class DecorateTabbarOut(BaseModel):
     style: DecorateTabbarStyle
     list: List[DecorateTabbarList]
+    class Config:
+        from_attributes = True
 
 
 class DecorateTabbarSaveIn(BaseModel):

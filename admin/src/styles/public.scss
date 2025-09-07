@@ -1,5 +1,8 @@
 body {
     @apply text-base text-tx-primary overflow-hidden min-w-[375px];
+    .w-\[280px\] {
+        width: 280px;
+    }
 }
 .form-tips {
     @apply text-tx-secondary text-xs leading-6 mt-1;
@@ -16,3 +19,4 @@ body {
 #nprogress .bar {
     @apply bg-primary #{!important};
 }
+

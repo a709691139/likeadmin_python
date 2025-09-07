@@ -31,7 +31,7 @@ class ChannelOaMenuService(IChannelOaMenuService):
 
     async def save(self, menus_in: ChannelOaMenusIn, is_publish: bool):
         """菜单保存"""
-        menus = menus_in.dict().get('__root__')
+        menus = menus_in.model_dump().get('__root__')
         if len(menus) > 3:
             raise AppException(HttpResp.FAILED, msg='一级菜单超出限制(最多3个)')
         for item in menus:

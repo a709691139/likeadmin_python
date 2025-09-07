@@ -49,7 +49,7 @@ class UserService(IUserService):
     async def center(self, user_id: int) -> UserCenterOut:
         """个人中心"""
         obj = await db.fetch_one(user_table.select().where(user_table.c.id == user_id).limit(1))
-        res = UserCenterOut.from_orm(obj)
+        res = UserCenterOut.model_validate(obj)
         if res.avatar:
             res.avatar = await UrlUtil.to_absolute_url(res.avatar)
         else:
@@ -63,7 +63,7 @@ class UserService(IUserService):
             user_auth_table.select().where(user_auth_table.c.user_id == user_id,
                                            user_auth_table.c.client == LoginClientEnum.MNP.value)
             .limit(1))
-        res = UserInfoOut.from_orm(obj)
+        res = UserInfoOut.model_validate(obj)
         res.isPassword = True if obj.password else False
         res.isBindMnp = True if auth else False
         res.version = get_settings().version

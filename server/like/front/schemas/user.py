@@ -16,7 +16,7 @@ class UserCenterOut(BaseModel):
     mobile: str  # 用户电话
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserInfoOut(UserCenterOut):
@@ -28,7 +28,7 @@ class UserInfoOut(UserCenterOut):
     createTime: datetime = Field(alias='create_time')  # 创建时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserEditIn(BaseModel):

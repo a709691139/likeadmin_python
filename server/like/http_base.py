@@ -4,9 +4,11 @@ from datetime import datetime
 from functools import wraps
 from typing import Callable, TypeVar
 
+from pydantic import BaseModel
 import pytz
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+from databases.core import Record
 
 from .config import get_settings
 
@@ -44,21 +46,45 @@ def unified_resp(func: Callable[..., RT]) -> Callable[..., RT]:
     """
 
     @wraps(func)
-    async def wrapper(*args, **kwargs) -> RT:
+    async def wrapper(*args: any, **kwargs: any) -> RT:
+        # 执行原函数获取响应
         if inspect.iscoroutinefunction(func):
             resp = await func(*args, **kwargs) or []
         else:
             resp = func(*args, **kwargs) or []
+        
+        resp_dict = jsonable_encoder(resp, by_alias=False)
+
+        # 确认配置
+        settings = get_settings()
+        target_tz = pytz.timezone(settings.timezone)
+        fmt = settings.datetime_fmt
+
+        # 递归处理所有 datetime和Record
+        def deep_convert_value(obj):
+            if isinstance(obj, datetime):
+                # 确保时区正确转换
+                if obj.tzinfo:
+                    localized = obj.astimezone(target_tz)
+                else:
+                    localized = pytz.utc.localize(obj).astimezone(target_tz)
+                return localized.strftime(fmt)
+            elif isinstance(obj, dict):
+                return {k: deep_convert_value(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [deep_convert_value(item) for item in obj]
+            return obj
+        
+        # 对转换后的字典进行二次处理（确保所有 datetime 被格式化）
+        processed_data = deep_convert_value(resp_dict)
+        # 构建响应
         return JSONResponse(
-            content=jsonable_encoder(
-                # 正常请求响应
-                {'code': HttpResp.SUCCESS.code, 'msg': HttpResp.SUCCESS.msg, 'data': resp},
-                by_alias=False,
-                # 自定义日期时间格式编码器
-                custom_encoder={
-                    datetime: lambda dt: dt.replace(tzinfo=pytz.utc).astimezone(pytz.timezone(get_settings().timezone))
-                    .strftime(get_settings().datetime_fmt)}),
+            content={
+                'code': HttpResp.SUCCESS.code,
+                'msg': HttpResp.SUCCESS.msg,
+                'data': processed_data
+            },
             media_type='application/json;charset=utf-8'
         )
-
+    
     return wrapper

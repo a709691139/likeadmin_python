@@ -9,7 +9,7 @@ from typing import List, Dict
 import pydantic
 from databases.interfaces import Record
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 
 from like.config import get_settings
 from like.dependencies.database import db
@@ -76,7 +76,7 @@ class GenerateService(IGenerateService):
 
     async def db_tables(self, db_in: DbTablesIn) -> AbstractPage[DbTableOut]:
         """库表列表"""
-        pager = await paginate(db, GenUtil.get_db_tables_query(db_in.table_name, db_in.table_comment))
+        pager = await apaginate(db, GenUtil.get_db_tables_query(db_in.table_name, db_in.table_comment))
         return pager
 
     async def list(self, list_in: ListTableIn) -> AbstractPage[GenTableOut]:
@@ -92,7 +92,7 @@ class GenerateService(IGenerateService):
             where.append(gen_table.c.create_time <= int(time.mktime(list_in.end_time.timetuple())))
         query = gen_table.select().where(*where) \
             .order_by(gen_table.c.id.desc())
-        pager = await paginate(db, query)
+        pager = await apaginate(db, query)
         return pager
 
     async def detail(self, id_: int) -> dict:
@@ -102,9 +102,9 @@ class GenerateService(IGenerateService):
         columns = await db.fetch_all(
             gen_table_column.select().where(gen_table_column.c.table_id == id_).order_by(gen_table_column.c.sort))
         return {
-            'base': GenTableBaseOut.from_orm(gen_tb),
-            'gen': GenTableGenOut.from_orm(gen_tb),
-            'column': pydantic.parse_obj_as(List[GenColumnOut], columns)
+            'base': GenTableBaseOut.model_validate(gen_tb),
+            'gen': GenTableGenOut.model_validate(gen_tb),
+            'column': pydantic.TypeAdapter(List[GenColumnOut]).validate_python(columns)
         }
 
     @db.transaction()
@@ -171,7 +171,7 @@ class GenerateService(IGenerateService):
         gen_tb = await db.fetch_one(gen_table.select().where(gen_table.c.id == edit_in.id).limit(1))
         assert gen_tb, "数据已丢失!"
         edit_in.sub_table_name.replace(get_settings().table_prefix, '')
-        tb_dict = edit_in.dict()
+        tb_dict = edit_in.model_dump()
         tb_dict.pop('columns')
         await db.execute(gen_table.update()
                          .where(gen_table.c.id == edit_in.id)
@@ -179,7 +179,7 @@ class GenerateService(IGenerateService):
         for column in edit_in.columns:
             await db.execute(gen_table_column.update()
                              .where(gen_table_column.c.id == column.id)
-                             .values(column.dict()))
+                             .values(column.model_dump()))
 
     @db.transaction()
     async def delete_table(self, ids: List[int]):

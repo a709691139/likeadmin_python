@@ -60,4 +60,4 @@ class DecorateOut(BaseModel):
     pages: str = Field(alias='page_data')  # 页面数据
 
     class Config:
-        orm_mode = True
+        from_attributes = True

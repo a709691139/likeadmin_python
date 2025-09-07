@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 import pydantic
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select
 
 from like.admin.schemas.article import ArticleEditIn, ArticleChangeIn, ArticleDeleteIn, ArticleListIn, ArticleDetailIn, \
@@ -85,7 +85,7 @@ class ArticleService(IArticleService):
             article_table.outerjoin(article_cate_table, article_table.c.cid == article_cate_table.c.id)).order_by(
             article_table.c.id.desc()).limit(limit)
         articles = await db.fetch_all(article_list)
-        return pydantic.parse_obj_as(List[ArticleDetailOut], articles)
+        return pydantic.TypeAdapter(List[ArticleDetailOut]).validate_python(articles)
 
     async def list(self, list_in: ArticleListIn) -> List[ArticleListOut]:
         """
@@ -93,6 +93,7 @@ class ArticleService(IArticleService):
         :param list_in:
         :return:
         """
+        
         colums = self.select_columns + [article_cate_table.c.name]
         where = [article_table.c.is_delete == 0]
         if list_in.title:
@@ -110,7 +111,7 @@ class ArticleService(IArticleService):
             article_table.outerjoin(article_cate_table, article_table.c.cid == article_cate_table.c.id)).order_by(
             article_table.c.sort.desc(), article_table.c.id.desc()
         )
-        article_list_pages = await paginate(db, article_list)
+        article_list_pages = await apaginate(db, article_list)
         for row in article_list_pages.lists:
             row.image = await UrlUtil.to_absolute_url(row.image)
         return article_list_pages
@@ -124,7 +125,7 @@ class ArticleService(IArticleService):
             select(self.select_columns).select_from(article_table).where(
                 article_table.c.id == detail_in.id, article_table.c.is_delete == 0).limit(1))
         assert article_detail, '文章不存在！'
-        result = pydantic.parse_obj_as(ArticleDetailOut, article_detail)
+        result = pydantic.TypeAdapter(ArticleDetailOut).validate_python(article_detail)
         result.image = await UrlUtil.to_absolute_url(article_detail.image)
         return result
 
@@ -134,7 +135,7 @@ class ArticleService(IArticleService):
         :param add_in:
         :return:
         """
-        add_article_dict = add_in.dict()
+        add_article_dict = add_in.model_dump()
         add_article_dict['create_time'] = int(time.time())
         add_article_dict['update_time'] = int(time.time())
         query = article_table.insert().values(**add_article_dict)
@@ -151,7 +152,7 @@ class ArticleService(IArticleService):
                 article_table.c.id == edit_in.id, article_table.c.is_delete == 0).limit(1))
         assert edit_article, '文章不存在！'
 
-        edit_article_dict = edit_in.dict()
+        edit_article_dict = edit_in.model_dump()
         edit_article_dict['image'] = await UrlUtil.to_relative_url(edit_in.image)
         edit_article_dict['update_time'] = int(time.time())
 

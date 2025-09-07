@@ -2,7 +2,7 @@ import time
 from abc import ABC, abstractmethod
 
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 
 from like.admin.schemas.channel import ChannelOaReplyFollowCreateIn, ChannelOaReplyFollowEditIn, ChannelOaReplyOut
 from like.dependencies.database import db
@@ -45,7 +45,7 @@ class ChannelOaReplyFollowService(IChannelOaReplyFollowService):
         query = official_reply.select() \
             .where(official_reply.c.reply_type == 1, official_reply.c.is_delete == 0) \
             .order_by(official_reply.c.sort.desc(), official_reply.c.id.desc())
-        return await paginate(db, query)
+        return await apaginate(db, query)
 
     async def detail(self, id_: int) -> ChannelOaReplyOut:
         """关注回复详情"""
@@ -54,13 +54,13 @@ class ChannelOaReplyFollowService(IChannelOaReplyFollowService):
             .where(official_reply.c.id == id_, official_reply.c.reply_type == 1, official_reply.c.is_delete == 0)
             .limit(1))
         assert reply, '关注回复数据不存在!'
-        return ChannelOaReplyOut.from_orm(reply)
+        return ChannelOaReplyOut.model_dump(reply)
 
     async def add(self, create_in: ChannelOaReplyFollowCreateIn):
         """关注回复新增"""
         if create_in.status == 1:
             await db.execute(official_reply.update().where(official_reply.c.reply_type == 1).values({'status': 0}))
-        create_dict = create_in.dict()
+        create_dict = create_in.model_dump()
         create_dict['reply_type'] = 1
         create_dict['create_time'] = int(time.time())
         create_dict['update_time'] = int(time.time())
@@ -76,7 +76,7 @@ class ChannelOaReplyFollowService(IChannelOaReplyFollowService):
         assert reply, '关注回复数据不存在!'
         if edit_in.status == 1:
             await db.execute(official_reply.update().where(official_reply.c.reply_type == 1).values({'status': 0}))
-        edit_dict = edit_in.dict()
+        edit_dict = edit_in.model_dump()
         edit_dict['reply_type'] = 1
         edit_dict['update_time'] = int(time.time())
         await db.execute(official_reply.update().where(official_reply.c.id == edit_in.id).values(**edit_dict))

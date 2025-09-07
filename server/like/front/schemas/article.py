@@ -28,6 +28,8 @@ class ArticleBaseOut(BaseModel):
     visit: int  # 浏览
     collect: bool = Field(default=False)
     createTime: datetime = Field(alias='create_time')  # 创建时间
+    class Config:
+        from_attributes = True
 
 
 class ArticleDetailOut(ArticleBaseOut):
@@ -61,6 +63,8 @@ class ArticleCategoryOut(BaseModel):
     """
     id: int
     name: str = Field(default='')
+    class Config:
+        from_attributes = True
 
 
 class ArticleCollectOut(BaseModel):
@@ -74,6 +78,8 @@ class ArticleCollectOut(BaseModel):
     intro: str
     visit: int  # 浏览
     createTime: datetime = Field(alias='create_time')  # 创建时间
+    class Config:
+        from_attributes = True
 
 
 class ArticleSearchOut(BaseModel):
@@ -87,6 +93,8 @@ class ArticleSearchOut(BaseModel):
     visit: int  # 浏览
     collect: Union[bool, None]  # 收藏
     createTime: datetime = Field(alias='create_time')  # 创建时间
+    class Config:
+        from_attributes = True
 
 
 class ArticleCollectPostIn(BaseModel):

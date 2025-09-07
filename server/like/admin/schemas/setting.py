@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Union
 
 from fastapi import Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
 from typing_extensions import Literal
 
 from like.admin.schemas.system import EmptyStrToNone
@@ -28,11 +28,11 @@ class SettingCopyrightItem(BaseModel):
     link: str  # 链接
 
 
-class SettingCopyrightIn(BaseModel):
+class SettingCopyrightIn(RootModel[List[SettingCopyrightItem]]):
     """
     保存备案信息参数
     """
-    __root__: List[SettingCopyrightItem]
+    # 不再需要 __root__ 字段，改为在继承时指定类型参数
 
 
 class CommonProtocol(BaseModel):
@@ -79,6 +79,8 @@ class SettingStorageOut(BaseModel):
     name: str
     status: int
     describe: str = ""
+    class Config:
+        from_attributes = True
 
 
 class SettingStorageDetailOut(SettingStorageOut):
@@ -87,15 +89,17 @@ class SettingStorageDetailOut(SettingStorageOut):
     secretKey: str = ""
     accessKey: str = ""
     domain: str = ""
+    class Config:
+        from_attributes = True
 
 
 class SettingDictTypeListIn(BaseModel):
     """
     字典类型-列表 入参
     """
-    dictName: Union[str, None, EmptyStrToNone]
-    dictType: Union[str, None, EmptyStrToNone]
-    dictStatus: Union[int, None, EmptyStrToNone]
+    dictName: Union[str, None, EmptyStrToNone] = Query(default=None)
+    dictType: Union[str, None, EmptyStrToNone] = Query(default=None)
+    dictStatus: Union[int, None, EmptyStrToNone] = Query(default=None)
 
 
 class SettingDictTypeAddIn(BaseModel):
@@ -147,9 +151,9 @@ class SettingDictDataListIn(BaseModel):
     字典数据-列表 入参
     """
     dictType: str
-    name: Union[str, None, EmptyStrToNone]
-    value: Union[str, None, EmptyStrToNone]
-    status: Union[int, None, EmptyStrToNone]
+    name: Union[str, None, EmptyStrToNone] = Query(default=None)
+    value: Union[str, None, EmptyStrToNone] = Query(default=None)
+    status: Union[int, None, EmptyStrToNone] = Query(default=None)
 
 
 class SettingDictDataDetailIn(BaseModel):
@@ -198,6 +202,8 @@ class SettingDictDataOut(BaseModel):
     status: int
     createTime: datetime = Field(alias='create_time')
     updateTime: datetime = Field(alias='update_time')
+    class Config:
+        from_attributes = True
 
 
 class HotSearchItem(BaseModel):
@@ -225,8 +231,7 @@ class SettingHotSearchOut(BaseModel):
     sort: int  # 排序号
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True
 
 class SettingLoginIn(BaseModel):
     """
@@ -289,7 +294,7 @@ class SettingNoticeListOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')  # 更新时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SettingNoticeDetailIn(BaseModel):
@@ -313,7 +318,7 @@ class SettingNoticeDetailOut(BaseModel):
     mnpNotice: dict = Field(default=0, alias='mnp_notice')  # 小程序通知
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SettingNoticeTpl(BaseModel):

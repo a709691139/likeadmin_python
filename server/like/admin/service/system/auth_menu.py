@@ -58,7 +58,7 @@ class SystemAuthMenuService(ISystemAuthMenuService):
             system_auth_menu.select().where(*where)
             .order_by(system_auth_menu.c.menu_sort.desc(), system_auth_menu.c.id))
         return ArrayUtil.list_to_tree(
-            [i.dict(exclude_none=True) for i in pydantic.parse_obj_as(List[SystemAuthMenuOut], menus)],
+            [i.dict(exclude_none=True) for i in pydantic.TypeAdapter(List[SystemAuthMenuOut]).validate_python(menus)],
             'id', 'pid', 'children')
 
     async def list(self) -> List[Union[SystemAuthMenuOut, dict]]:
@@ -67,7 +67,7 @@ class SystemAuthMenuService(ISystemAuthMenuService):
             system_auth_menu.select()
             .order_by(system_auth_menu.c.menu_sort.desc(), system_auth_menu.c.id))
         return ArrayUtil.list_to_tree(
-            [i.dict(exclude_none=True) for i in pydantic.parse_obj_as(List[SystemAuthMenuOut], menus)],
+            [i.dict(exclude_none=True) for i in pydantic.TypeAdapter(List[SystemAuthMenuOut]).validate_python(menus)],
             'id', 'pid', 'children')
 
     async def detail(self, id_: int) -> Union[SystemAuthMenuOut, dict]:

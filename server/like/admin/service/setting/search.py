@@ -29,16 +29,17 @@ class SettingSearchService(ISettingSearchService):
         is_hot_search = await ConfigUtil.get_val('search', 'isHotSearch', '0')
         is_hot_search = int(is_hot_search) if is_hot_search.isdigit() else 0
         objs = await db.fetch_all(hot_search.select().order_by(hot_search.c.sort.desc()))
+        objs = [obj._asdict() for obj in objs]
         return {
             'is_hot_search': is_hot_search,
-            'list': pydantic.parse_obj_as(List[SettingHotSearchOut], objs),
+            'list': pydantic.TypeAdapter(List[SettingHotSearchOut]).validate_python(objs),
         }
 
     async def save(self, hot_search_in: SettingHotSearchIn):
         """热门搜索新增"""
         await ConfigUtil.set('search', 'isHotSearch', str(hot_search_in.is_hot_search))
         await db.execute(hot_search.delete().where(hot_search.c.id > 0))
-        await db.execute(hot_search.insert().values(hot_search_in.dict()['list']))
+        await db.execute(hot_search.insert().values(hot_search_in.model_dump()['list']))
 
     @classmethod
     async def instance(cls):

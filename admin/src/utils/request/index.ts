@@ -116,7 +116,7 @@ const defaultOptions: AxiosRequestConfig = {
         // 开启请求超时重新发起请求请求机制
         isOpenRetry: true,
         // 重新请求次数
-        retryCount: 2
+        retryCount: 0
     }
 }
 

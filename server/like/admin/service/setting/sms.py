@@ -64,7 +64,7 @@ class SettingSmsService(ISettingSmsService):
 
     async def save(self, save_in: SettingSmsSaveIn):
         """短信引擎保存"""
-        await ConfigUtil.set('sms', save_in.alias, json.dumps(save_in.dict(exclude_none=True), ensure_ascii=False))
+        await ConfigUtil.set('sms', save_in.alias, json.dumps(save_in.model_dump(exclude_none=True), ensure_ascii=False))
         engine = await ConfigUtil.get_val('sms', 'default', '')
         if save_in.status == 1:
             await ConfigUtil.set('sms', 'default', save_in.alias)

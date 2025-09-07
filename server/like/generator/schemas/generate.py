@@ -18,8 +18,8 @@ class ListTableIn(BaseModel):
     """生成列表参数"""
     table_name: Union[str, None] = Query(alias='tableName', default=None)  # 账号
     table_comment: Union[str, None] = Query(alias='tableComment', default=None)  # 昵称
-    start_time: Union[date, None, EmptyStrToNone] = Query(alias='startTime')  # 开始时间
-    end_time: Union[date, None, EmptyStrToNone] = Query(alias='endTime')  # 结束时间
+    start_time: Union[date, None, EmptyStrToNone] = Query(alias='startTime', default=None)  # 开始时间
+    end_time: Union[date, None, EmptyStrToNone] = Query(alias='endTime', default=None)  # 结束时间
 
 
 class DetailTableIn(BaseModel):
@@ -106,7 +106,7 @@ class DbTableOut(BaseModel):
         return update_time or ''
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class GenTableOut(BaseModel):
@@ -119,7 +119,7 @@ class GenTableOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')  # 更新时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class GenTableBaseOut(BaseModel):
@@ -134,7 +134,7 @@ class GenTableBaseOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')  # 更新时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class GenTableGenOut(BaseModel):
@@ -151,7 +151,7 @@ class GenTableGenOut(BaseModel):
     subTableFk: str = Field(alias='sub_table_fk')  # 关联表外键
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class GenColumnOut(BaseModel):
@@ -175,4 +175,4 @@ class GenColumnOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')  # 更新时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True

@@ -1,21 +1,12 @@
 from functools import lru_cache
 from os import path
-
-from dotenv import load_dotenv
-from pydantic import BaseSettings as Base
+from pydantic_settings import BaseSettings
+from pydantic import Field
 
 __all__ = ['get_settings']
 
 ENV_FILES = ('.env', '.env.prod')
 ROOT_PATH = path.dirname(path.abspath(path.join(__file__, '..')))
-
-
-class BaseSettings(Base):
-    """配置基类"""
-
-    class Config:
-        env_file = ENV_FILES
-        env_file_encoding = 'utf-8'
 
 
 class Settings(BaseSettings):
@@ -30,20 +21,23 @@ class Settings(BaseSettings):
                 上述环境变量会覆盖 upload_directory 和 redis_url
     """
     # 上传文件路径
-    upload_directory: str = '/tmp/uploads/likeadmin-python/'
+    upload_directory: str = Field(default='/tmp/uploads/likeadmin-python/', env='UPLOAD_DIRECTORY')
     # 上传图片限制
-    upload_image_size = 1024 * 1024 * 10
+    upload_image_size: int = 1024 * 1024 * 10  # 明确标注为 int 类型
     # 上传视频限制
-    upload_video_size = 1024 * 1024 * 30
+    upload_video_size: int = 1024 * 1024 * 30  # 明确标注为 int 类型
     # 上传图片扩展
-    upload_image_ext = {'png', 'jpg', 'jpeg', 'gif', 'ico', 'bmp'}
+    upload_image_ext: set[str] = {'png', 'jpg', 'jpeg', 'gif', 'ico', 'bmp'}  # 明确标注为 set[str] 类型
     # 上传视频扩展
-    upload_video_ext = {'mp4', 'mp3', 'avi', 'flv', 'rmvb', 'mov'}
+    upload_video_ext: set[str] = {'mp4', 'mp3', 'avi', 'flv', 'rmvb', 'mov'}  # 明确标注为 set[str] 类型
     # 上传路径URL前缀
-    upload_prefix = '/api/uploads'
+    upload_prefix: str = '/api/uploads'  # 明确标注为 str 类型
 
     # 数据源配置
-    database_url: str = 'mysql+pymysql://root:root@localhost:3306/likeadmin?charset=utf8mb4'
+    database_url: str = Field(
+        default='mysql+pymysql://root:root@localhost:3306/likeadmin?charset=utf8mb4',
+        env='DATABASE_URL'
+    )
     # 数据库连接池最小值
     database_pool_min_size: int = 5
     # 数据库连接池最大值
@@ -52,21 +46,21 @@ class Settings(BaseSettings):
     database_pool_recycle: int = 300
 
     # Redis源配置
-    redis_url: str = 'redis://localhost:6379'
+    redis_url: str = Field(default='redis://localhost:6379', env='REDIS_URL')
 
     # 是否启用静态资源
     enabled_static: bool = True
     # 静态资源URL路径
-    static_path: str = '/api/static'
+    static_path: str = '/api/static'  # 明确标注为 str 类型
     # 静态资源本地路径
     static_directory: str = path.join(ROOT_PATH, 'static')
 
     # CORS 跨域资源共享
     # 允许跨域的源列表 eg. '["*"]'   '["http://localhost", "http://localhost:8080", "https://www.example.org"]'
-    cors_allow_origins: str = '["*"]'
+    cors_allow_origins: str = '["*"]'  # 明确标注为 str 类型
 
     # 模式
-    mode: str = 'prod'  # dev, prod
+    mode: str = Field(default='prod', env='MODE')  # dev, prod
 
     # 全局配置
     # 版本
@@ -82,7 +76,7 @@ class Settings(BaseSettings):
     # 日期时间格式
     datetime_fmt: str = '%Y-%m-%d %H:%M:%S'
     # 系统加密字符
-    secret: str = 'UVTIyzCy'
+    secret: str = Field(default='UVTIyzCy', env='SECRET')
     # Redis键前缀
     redis_prefix: str = 'Like:'
     # 短信验证码
@@ -90,15 +84,20 @@ class Settings(BaseSettings):
     # 禁止修改操作 (演示功能,限制POST请求)
     disallow_modify: bool = False
     # 当前域名
-    domain = 'http://127.0.0.1:8000'
+    domain: str = Field(default='http://127.0.0.1:8000', env='DOMAIN')  # 明确标注为 str 类型
     # 短信验证码
-    redisSmsCode = "smsCode:"
+    redisSmsCode: str = "smsCode:"  # 明确标注为 str 类型
+
+    # 配置模型设置
+    model_config = {
+        "env_file": [path.join(ROOT_PATH, f) for f in ENV_FILES],
+        "env_file_encoding": 'utf-8',
+        "extra": "allow"
+    }
 
 
 @lru_cache()
 def get_settings() -> Settings:
     """获取并缓存应用配置"""
-    # 读取server目录下的配置
-    for f in ENV_FILES:
-        load_dotenv(dotenv_path=path.join(ROOT_PATH, f))
     return Settings()
+    

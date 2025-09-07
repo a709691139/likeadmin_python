@@ -54,7 +54,7 @@ class ServerInfo:
         """获取CPU信息"""
         res = {'cpu_num': psutil.cpu_count(logical=True)}
         cpu_times = psutil.cpu_times()
-        total = cpu_times.user + cpu_times.nice + cpu_times.system + cpu_times.idle \
+        total = cpu_times.user + cpu_times.system + cpu_times.idle \
                 + get_attr(cpu_times, 'iowait', 0.0) + get_attr(cpu_times, 'irq', 0.0) \
                 + get_attr(cpu_times, 'softirq', 0.0) + get_attr(cpu_times, 'steal', 0.0)
         res['total'] = round(total, 2)

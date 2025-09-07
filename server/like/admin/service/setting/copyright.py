@@ -28,7 +28,7 @@ class SettingCopyrightService(ISettingCopyrightService):
 
     async def save(self, copyright_in: SettingCopyrightIn):
         """保存网站备案信息"""
-        await ConfigUtil.set('website', 'copyright', copyright_in.json(ensure_ascii=False))
+        await ConfigUtil.set('website', 'copyright', copyright_in.model_dump_json())
 
     @classmethod
     async def instance(cls):

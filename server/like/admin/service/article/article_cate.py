@@ -4,7 +4,7 @@ from typing import List
 
 import pydantic
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select, func
 
 from like.admin.schemas.article import ArticleCateOut, ArticleCateListIn, ArticleCateAddIn, \
@@ -105,7 +105,8 @@ class ArticleCateService(IArticleCateService):
         query = select(self.select_columns).select_from(article_cate_table).where(
             article_cate_table.c.is_delete == 0).order_by(*self.order_by)
         all_cate = await db.fetch_all(query)
-        return pydantic.parse_obj_as(List[ArticleCateOut], all_cate)
+        all_cate_dict = [row._asdict() for row in all_cate]
+        return pydantic.TypeAdapter(List[ArticleCateOut]).validate_python(all_cate_dict)
 
     async def list(self, list_in: ArticleCateListIn) -> AbstractPage[ArticleCateOut]:
         where = [article_cate_table.c.is_delete == 0]
@@ -114,7 +115,7 @@ class ArticleCateService(IArticleCateService):
         if list_in.is_show is not None:
             where.append(article_cate_table.c.is_show == list_in.is_show)
         query = select(self.select_columns).select_from(article_cate_table).where(*where).order_by(*self.order_by)
-        pager = await paginate(db, query)
+        pager = await apaginate(db, query)
         for obj in pager.lists:
             obj.number = await db.fetch_val(
                 select(func.count(article_table.c.id))
@@ -129,14 +130,14 @@ class ArticleCateService(IArticleCateService):
         """
         cate_detail = await self.find_cate_by_id(detail_in.id)
         assert cate_detail, '分类不存在！'
-        return pydantic.parse_obj_as(ArticleCateOut, cate_detail)
+        return pydantic.TypeAdapter(ArticleCateOut).validate_python(cate_detail)
 
     async def add(self, add_in: ArticleCateAddIn) -> ArticleCateOut:
         """
         分类新增
         :return:
         """
-        create_cate = add_in.dict()
+        create_cate = add_in.model_dump()
         create_cate['create_time'] = int(time.time())
         create_cate['update_time'] = int(time.time())
         query = article_cate_table.insert().values(**create_cate)
@@ -150,7 +151,7 @@ class ArticleCateService(IArticleCateService):
         edit_cate = await self.find_cate_by_id(edit_in.id)
         assert edit_cate, '分类不存在'
 
-        edit_dict = edit_in.dict()
+        edit_dict = edit_in.model_dump()
         edit_dict['update_time'] = int(time.time())
         return await db.execute(article_cate_table.update()
                                 .where(article_cate_table.c.id == edit_in.id)

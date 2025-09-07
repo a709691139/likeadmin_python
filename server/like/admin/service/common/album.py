@@ -4,7 +4,7 @@ from typing import List
 
 import pydantic
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select
 
 from like.admin.schemas.common import CommonAlbumListIn, CommonAlbumCateListIn, CommonAlbumCateOut, \
@@ -117,7 +117,7 @@ class AlbumService(IAlbumService):
             where.append(common_album.c.name.like('%{0}%'.format(params.keyword)))
         query = select(self.select_album_columns).select_from(common_album).where(*where).order_by(*self.album_order_by)
 
-        pager = await paginate(db, query)
+        pager = await apaginate(db, query)
         for row in pager.lists:
             row.url = await UrlUtil.to_absolute_url(row.url)
         return pager
@@ -210,7 +210,7 @@ class AlbumService(IAlbumService):
             select(self.select_album_cate_columns).select_from(common_album_cate).where(*where).order_by(
                 *self.cate_order_by))
         return ArrayUtil.list_to_tree(
-            [i.dict(exclude_none=True) for i in pydantic.parse_obj_as(List[CommonAlbumCateOut], cate_list)],
+            [i.model_dump(exclude_none=True) for i in pydantic.TypeAdapter(List[CommonAlbumCateOut]).validate_python(cate_list)],
             'id', 'pid', 'children')
 
     async def cate_add(self, params: CommonAlbumCateEditIn):

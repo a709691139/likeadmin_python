@@ -24,8 +24,8 @@
                 <el-form-item label="文章状态">
                     <el-select class="w-[280px]" v-model="queryParams.isShow">
                         <el-option label="全部" value />
-                        <el-option label="显示" :value="1" />
-                        <el-option label="隐藏" :value="0" />
+                        <el-option label="显示" value="1" />
+                        <el-option label="隐藏" value="0" />
                     </el-select>
                 </el-form-item>
                 <el-form-item>

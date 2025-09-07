@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { reactive, shallowRef } from 'vue'
 import 'vue3-video-play/dist/style.css'
-import VideoPlay from 'vue3-video-play'
+import VideoPlay from 'vue3-video-play/dist/index.umd.js'
 const props = defineProps({
     src: {
         type: String,

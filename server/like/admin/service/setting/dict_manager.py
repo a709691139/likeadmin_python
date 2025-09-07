@@ -8,7 +8,7 @@ from typing import List
 import pydantic
 from fastapi import Depends
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select
 
 from like.admin.schemas.setting import SettingDictTypeOut, SettingDictTypeListIn, SettingDictTypeAddIn, \
@@ -92,7 +92,8 @@ class SettingDictTypeService(ISettingDictTypeService):
         all_dict = await db.fetch_all(
             select(self.select_columns).where(settings_dict_type.c.is_delete == 0).order_by(
                 settings_dict_type.c.id.desc()))
-        return pydantic.parse_obj_as(List[SettingDictTypeOut], all_dict)
+        all_dict = [item._asdict() for item in all_dict]
+        return pydantic.TypeAdapter(List[SettingDictTypeOut]).validate_python(all_dict)
 
     async def list(self, list_in: SettingDictTypeListIn):
         """字典类型列表"""
@@ -106,7 +107,7 @@ class SettingDictTypeService(ISettingDictTypeService):
         query = select(self.select_columns).select_from(settings_dict_type).where(*where).order_by(
             settings_dict_type.c.id.desc())
 
-        return await paginate(db, query)
+        return await apaginate(db, query)
 
     async def detail(self, detail_in: SettingDictTypeDetailIn) -> SettingDictTypeOut:
         """字典类型详情"""
@@ -115,7 +116,7 @@ class SettingDictTypeService(ISettingDictTypeService):
             select(self.select_columns).select_from(settings_dict_type).where(
                 settings_dict_type.c.id == detail_in.id, settings_dict_type.c.is_delete == 0).limit(1))
         assert type_detail, '字典类型不存在！'
-        return pydantic.parse_obj_as(SettingDictTypeOut, type_detail)
+        return pydantic.TypeAdapter(SettingDictTypeOut).validate_python(type_detail)
 
     async def add(self, add_in: SettingDictTypeAddIn):
         """字典类型新增"""
@@ -127,8 +128,7 @@ class SettingDictTypeService(ISettingDictTypeService):
             select([settings_dict_type.c.id]).select_from(settings_dict_type)
             .where(settings_dict_type.c.dict_type == add_in.dict_type,
                    settings_dict_type.c.is_delete == 0).limit(1)), '字典类型已存在！'
-
-        create_dict = dict(add_in)
+        create_dict = add_in.model_dump()
         create_dict['create_time'] = int(time.time())
         create_dict['update_time'] = int(time.time())
         await db.execute(settings_dict_type.insert().values(**create_dict))
@@ -149,7 +149,7 @@ class SettingDictTypeService(ISettingDictTypeService):
             .where(settings_dict_type.c.dict_type == edit_in.dict_type,
                    settings_dict_type.c.is_delete == 0).limit(1)), '字典类型已存在！'
 
-        type_edit = edit_in.dict()
+        type_edit = edit_in.model_dump()
         type_edit['update_time'] = int(time.time())
         return await db.execute(settings_dict_type.update()
                                 .where(settings_dict_type.c.id == edit_in.id)
@@ -199,7 +199,7 @@ class SettingDictDataService(ISettingDictDataService):
         """
         dict_type_id = await self.dict_type_service.get_dict_type_id_by_type(list_in.dictType)
         query = self.get_dict_data_list_query(list_in, dict_type_id)
-        return await paginate(db, query)
+        return await apaginate(db, query)
 
     async def all(self, all_in: SettingDictDataListIn) -> List[SettingDictDataOut]:
         """
@@ -210,7 +210,7 @@ class SettingDictDataService(ISettingDictDataService):
         dict_type_id = await self.dict_type_service.get_dict_type_id_by_type(all_in.dictType)
         query = self.get_dict_data_list_query(all_in, dict_type_id)
         all_dict = await db.fetch_all(query)
-        return pydantic.parse_obj_as(List[SettingDictDataOut], all_dict)
+        return pydantic.TypeAdapter(List[SettingDictDataOut]).validate_python(all_dict)
 
     def get_dict_data_list_query(self, params: SettingDictDataListIn, dict_type_id: int):
         """
@@ -238,7 +238,7 @@ class SettingDictDataService(ISettingDictDataService):
             select(self.select_columns).select_from(settings_dict_data).where(
                 settings_dict_data.c.id == detail_in.id, settings_dict_data.c.is_delete == 0).limit(1))
         assert data_detail, '字典数据不存在！'
-        return pydantic.parse_obj_as(SettingDictDataOut, data_detail)
+        return pydantic.TypeAdapter(SettingDictDataOut).validate_python(data_detail)
 
     async def add(self, add_in: SettingDictDataAddIn):
         """
@@ -250,7 +250,7 @@ class SettingDictDataService(ISettingDictDataService):
             select([settings_dict_data.c.id]).select_from(settings_dict_data)
             .where(settings_dict_data.c.name == add_in.name,
                    settings_dict_data.c.is_delete == 0).limit(1)), '字典数据已存在！'
-        create_dict = dict(add_in)
+        create_dict = add_in.model_dump()
         create_dict['create_time'] = int(time.time())
         create_dict['update_time'] = int(time.time())
         await db.execute(settings_dict_data.insert().values(**create_dict))
@@ -260,11 +260,7 @@ class SettingDictDataService(ISettingDictDataService):
             select([settings_dict_data.c.id]).select_from(settings_dict_data)
             .where(settings_dict_data.c.id == edit_in.id,
                    settings_dict_data.c.is_delete == 0).limit(1)), '字典数据不存在！'
-        assert not await db.fetch_one(
-            select([settings_dict_data.c.id]).select_from(settings_dict_data)
-            .where(settings_dict_data.c.name == edit_in.name,
-                   settings_dict_data.c.is_delete == 0).limit(1)), '字典数据已存在！'
-        type_edit = edit_in.dict()
+        type_edit = edit_in.model_dump()
         type_edit['update_time'] = int(time.time())
         return await db.execute(settings_dict_data.update()
                                 .where(settings_dict_data.c.id == edit_in.id)

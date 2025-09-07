@@ -78,7 +78,7 @@ class SettingNoticeService(ISettingNoticeService):
             notice_setting.select()
             .where(notice_setting.c.id == save_in.id, notice_setting.c.is_delete == 0).limit(1))
         assert setting
-        save_dict = save_in.dict(exclude_none=True)
+        save_dict = save_in.model_dump(exclude_none=True)
         save_dict['system_notice'] = json.dumps(save_dict['system_notice'], ensure_ascii=False)
         save_dict['sms_notice'] = json.dumps(save_dict['sms_notice'], ensure_ascii=False)
         save_dict['oa_notice'] = json.dumps(save_dict['oa_notice'], ensure_ascii=False)

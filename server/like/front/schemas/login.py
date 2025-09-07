@@ -11,6 +11,8 @@ class FrontLoginCheckOut(BaseModel):
     id: int
     token: str
     isBindMobile: bool
+    class Config:
+        from_attributes = True
 
 
 class FrontRegisterIn(BaseModel):

@@ -32,12 +32,11 @@ class DecorateTabbarService(ABC):
     async def detail(self) -> DecorateTabbarOut:
         tabbar_list = await db.fetch_all(
             select(self.select_columns).select_from(decorate_tabbar).order_by(decorate_tabbar.c.id.asc()))
+        tabbar_list = [item._asdict() for item in tabbar_list]
         tabbar_style = await ConfigUtil.get_val("tabbar", "style", "{}")
-
-        style = pydantic.parse_obj_as(DecorateTabbarStyle, json.loads(tabbar_style))
-        tabbar_list = pydantic.parse_obj_as(List[DecorateTabbarList], tabbar_list)
-
-        return pydantic.parse_obj_as(DecorateTabbarOut, {"style": style, "list": tabbar_list})
+        style = pydantic.TypeAdapter(DecorateTabbarStyle).validate_python(json.loads(tabbar_style))
+        tabbar_list = pydantic.TypeAdapter(List[DecorateTabbarList]).validate_python(tabbar_list)
+        return pydantic.TypeAdapter(DecorateTabbarOut).validate_python({"style": style, "list": tabbar_list})
 
     @db.transaction()
     async def save(self, save_in: DecorateTabbarSaveIn):
@@ -57,7 +56,7 @@ class DecorateTabbarService(ABC):
             await db.execute(decorate_tabbar.insert().values(**save_dict))
         tabbar_style = save_in.style
         if tabbar_style:
-            await ConfigUtil.set("tabbar", "style", json.dumps(tabbar_style.dict()))
+            await ConfigUtil.set("tabbar", "style", json.dumps(tabbar_style.model_dump()))
 
     @classmethod
     async def instance(cls):

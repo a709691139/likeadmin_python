@@ -5,7 +5,7 @@ from typing import List, Optional
 import pydantic
 from fastapi import Request
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select
 
 from like.dependencies.database import db
@@ -125,7 +125,7 @@ class ArticleService(IArticleService):
         query = select([article_cate_table.c.id, article_cate_table.c.name]).select_from(
             article_cate_table).where(*where).order_by(*self.cate_order_by)
         all_cate = await db.fetch_all(query)
-        return pydantic.parse_obj_as(List[ArticleCategoryOut], all_cate)
+        return pydantic.TypeAdapter(List[ArticleCategoryOut]).validate_python(all_cate)
 
     async def list(self, list_in: ArticleListIn) -> AbstractPage[ArticleBaseOut]:
         """
@@ -147,7 +147,7 @@ class ArticleService(IArticleService):
                 order_by = [article_table.c.id.desc()]
 
         query = select(self.select_columns).select_from(article_table).where(*where).order_by(*order_by)
-        page_result = await paginate(db, query)
+        page_result = await apaginate(db, query)
         # 补充收藏信息/image转换为绝对地址
         article_ids = [row.id for row in page_result.lists]
         article_collects = []
@@ -170,7 +170,7 @@ class ArticleService(IArticleService):
                 article_table.c.id == detail_in.id, article_table.c.is_delete == 0).limit(1))
         assert article_detail, '数据不存在！'
 
-        result = pydantic.parse_obj_as(ArticleDetailOut, article_detail)
+        result = pydantic.TypeAdapter(ArticleDetailOut).validate_python(article_detail)
         result.image = await UrlUtil.to_absolute_url(result.image)
         if self.user_id:
             article_collects = await self.get_user_collect_article_ids(user_id=self.user_id,
@@ -199,7 +199,7 @@ class ArticleService(IArticleService):
                                             article_collect_table.c.article_id == article_table.c.id)) \
             .order_by(article_collect_table.c.id.desc())
 
-        collect_pages = await paginate(db, collect_query)
+        collect_pages = await apaginate(db, collect_query)
         for row in collect_pages.lists:
             row.image = await UrlUtil.to_absolute_url(row.image)
         return collect_pages

@@ -61,4 +61,4 @@ class {{{ entity_name }}}Out(BaseModel):
     {%- endif %}
 
     class Config:
-        orm_mode = True
+        from_attributes = True

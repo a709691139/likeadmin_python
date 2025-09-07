@@ -33,8 +33,8 @@ class SettingProtocolService(ISettingProtocolService):
 
     async def save(self, protocol_in: SettingProtocolIn):
         """保存政策协议信息"""
-        await ConfigUtil.set('protocol', 'service', protocol_in.service.json(ensure_ascii=False))
-        await ConfigUtil.set('protocol', 'privacy', protocol_in.privacy.json(ensure_ascii=False))
+        await ConfigUtil.set('protocol', 'service', protocol_in.service.model_dump_json())
+        await ConfigUtil.set('protocol', 'privacy', protocol_in.privacy.model_dump_json())
 
     @classmethod
     async def instance(cls):

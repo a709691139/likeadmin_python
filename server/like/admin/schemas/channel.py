@@ -1,7 +1,7 @@
 from typing import List, Union
 
 from fastapi import Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
 from typing_extensions import Literal
 
 
@@ -41,11 +41,11 @@ class ChannelOaMenusItem(BaseModel):
     sub_button: List[ChannelOaSubMenus] = Field(default=None, alias='subButtons')
 
 
-class ChannelOaMenusIn(BaseModel):
+class ChannelOaMenusIn(RootModel[List[ChannelOaMenusItem]]):
     """
     公众号保存菜单参数
     """
-    __root__: List[ChannelOaMenusItem]
+    # __root__: List[ChannelOaMenusItem]
 
 
 class ChannelH5In(BaseModel):
@@ -179,4 +179,4 @@ class ChannelOaReplyOut(BaseModel):
     status: int  # 状态
 
     class Config:
-        orm_mode = True
+        from_attributes = True

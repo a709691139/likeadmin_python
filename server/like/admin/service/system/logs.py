@@ -2,7 +2,7 @@ import time
 from abc import ABC, abstractmethod
 
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select
 
 from like.admin.schemas.system import (SystemLogOperateIn, SystemLogLoginIn, SystemLogOperateOut, SystemLogLoginOut)
@@ -51,7 +51,7 @@ class SystemLogsServer(ISystemLogsServer):
             system_log_operate.outerjoin(
                 system_auth_admin, system_log_operate.c.admin_id == system_auth_admin.c.id)) \
             .order_by(system_log_operate.c.id.desc())
-        pager = await paginate(db, query)
+        pager = await apaginate(db, query)
         return pager
 
     async def login(self, login_in: SystemLogLoginIn) -> AbstractPage[SystemLogLoginOut]:
@@ -68,7 +68,7 @@ class SystemLogsServer(ISystemLogsServer):
             where.append(system_log_login.c.create_time <= int(time.mktime(login_in.end_time.timetuple())))
         query = system_log_login.select().where(*where) \
             .order_by(system_log_login.c.id.desc())
-        pager = await paginate(db, query)
+        pager = await apaginate(db, query)
         return pager
 
     @classmethod

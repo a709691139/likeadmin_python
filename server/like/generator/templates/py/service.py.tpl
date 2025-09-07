@@ -4,7 +4,7 @@ from typing import List
 import pydantic
 import sqlalchemy as sa
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 
 from {{{ package_name }}}.dependencies.database import db
 from {{{ package_name }}}.utils.urls import UrlUtil
@@ -90,10 +90,10 @@ class {{{ entity_name }}}Service(I{{{ entity_name }}}Service):
         {%- if table.gen_tpl == 'tree' %}
         data = await db.fetch_all(query)
         res = ArrayUtil.list_to_tree(
-            [i.dict(exclude_none=True) for i in pydantic.parse_obj_as(List[{{{ entity_name }}}Out], data)],
+            [i.model_dump(exclude_none=True) for i in pydantic.TypeAdapter(List[{{{ entity_name }}}Out]).validate_python(data)],
             '{{{ table.tree_primary }}}', '{{{ table.tree_parent }}}', 'children')
         {%- else %}
-        res = await paginate(db, query)
+        res = await apaginate(db, query)
         {%- endif %}
         return res
 
@@ -104,7 +104,7 @@ class {{{ entity_name }}}Service(I{{{ entity_name }}}Service):
                 {{{ entity_snake_name }}}.c.{{{ primary_key }}} == id_{% if 'is_delete' in all_fields %}, {{{ entity_snake_name }}}.c.is_delete == 0{%- endif %})
             .limit(1))
         assert model, '数据不存在!'
-        res = {{{ entity_name }}}Out.from_orm(model)
+        res = {{{ entity_name }}}Out.model_validate(model)
         {%- for column in columns %}
         {%- if column.is_edit and column.java_field in ['image', 'avatar', 'logo', 'img'] %}
         res.{{{ column.java_field }}} = await UrlUtil.to_relative_url(res.{{{ column.java_field }}})

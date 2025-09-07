@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import pydantic
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select, or_
 
 from like.admin.schemas.user import UserListIn, UserInfoOut, UserEditlIn, UserDetailIn
@@ -53,7 +53,7 @@ class UserService(IUserService):
             where.append(user_table.c.create_time <= int(time.mktime(list_in.end_time.timetuple())))
         query = select(self.select_columns).select_from(user_table).where(*where).order_by(user_table.c.id.desc())
 
-        user_list_pages = await paginate(db, query)
+        user_list_pages = await apaginate(db, query)
         for row in user_list_pages.lists:
             row.avatar = await UrlUtil.to_absolute_url(row.avatar)
             row.sex = get_sex(int(row.sex))
@@ -101,7 +101,7 @@ class UserService(IUserService):
 
         assert user, '数据不存在！'
 
-        result = pydantic.parse_obj_as(UserInfoOut, user)
+        result = pydantic.TypeAdapter(UserInfoOut).validate_python(user)
         result.avatar = await UrlUtil.to_absolute_url(result.avatar)
         result.sex = get_sex(int(result.sex))
         result.channel = get_login_client(int(result.channel))

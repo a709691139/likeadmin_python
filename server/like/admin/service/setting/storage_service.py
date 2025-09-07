@@ -68,7 +68,7 @@ class SettingStorageService(ISettingStorageService):
                 detail.update({
                     "region": config.get("region")
                 })
-        return pydantic.parse_obj_as(SettingStorageDetailOut, detail)
+        return pydantic.TypeAdapter(SettingStorageDetailOut).validate_python(detail)
 
     async def edit(self, params: SettingStorageEditIn):
         alias = params.alias

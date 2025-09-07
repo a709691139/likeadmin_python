@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 from pymysql.err import OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 

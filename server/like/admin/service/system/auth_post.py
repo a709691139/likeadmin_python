@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 import pydantic
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select
 
 from like.admin.schemas.system import SystemAuthPostAddIn, SystemAuthPostEditIn, SystemAuthPostOut
@@ -47,7 +47,7 @@ class SystemAuthPostService(ISystemAuthPostService):
     async def fetch_all(self):
         post_all = await db.fetch_all(
             select(self.select_columns).where(system_auth_post.c.is_delete == 0).order_by(*self.order_by))
-        return pydantic.parse_obj_as(List[SystemAuthPostOut], post_all)
+        return pydantic.TypeAdapter(List[SystemAuthPostOut]).validate_python(post_all)
 
     async def fetch_list(self, code: str = '', name: str = '', is_stop: int = None):
         where = [system_auth_post.c.is_delete == 0]
@@ -58,13 +58,13 @@ class SystemAuthPostService(ISystemAuthPostService):
         if is_stop:
             where.append(system_auth_post.c.is_stop == is_stop)
         query = select(self.select_columns).select_from(system_auth_post).where(*where).order_by(*self.order_by)
-        return await paginate(db, query)
+        return await apaginate(db, query)
 
     async def add(self, post_add_in: SystemAuthPostAddIn):
         assert not await db.fetch_one(system_auth_post.select().where(
             system_auth_post.c.code == post_add_in.code or system_auth_post.c.name == post_add_in.name,
             system_auth_post.c.is_delete == 0).limit(1)), '该岗位已存在'
-        create_post = post_add_in.dict()
+        create_post = post_add_in.model_dump()
         create_post['create_time'] = int(time.time())
         create_post['update_time'] = int(time.time())
         query = system_auth_post.insert().values(**create_post)
@@ -80,7 +80,7 @@ class SystemAuthPostService(ISystemAuthPostService):
             system_auth_post.c.code == post_edit_in.code or system_auth_post.c.name == post_edit_in.name,
             system_auth_post.c.is_delete == 0).limit(1)), '该岗位已存在'
 
-        edit_post = post_edit_in.dict()
+        edit_post = post_edit_in.model_dump()
         edit_post['update_time'] = int(time.time())
 
         return await db.execute(system_auth_post.update()

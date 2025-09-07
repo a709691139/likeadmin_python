@@ -5,7 +5,7 @@ from typing import List
 import pydantic
 from fastapi import Depends
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import func, select
 
 from like.admin.config import AdminConfig
@@ -53,13 +53,13 @@ class SystemAuthRoleService(ISystemAuthRoleService):
         roles = await db.fetch_all(
             system_auth_role.select()
             .order_by(system_auth_role.c.sort.desc(), system_auth_role.c.id.desc()))
-        return pydantic.parse_obj_as(List[SystemAuthRoleOut], roles)
+        return pydantic.TypeAdapter(List[SystemAuthRoleOut]).validate_python(roles)
 
     async def list(self) -> AbstractPage[SystemAuthRoleDetailOut]:
         """角色列表"""
         query = system_auth_role.select() \
             .order_by(system_auth_role.c.sort.desc(), system_auth_role.c.id.desc())
-        pager = await paginate(db, query)
+        pager = await apaginate(db, query)
         for obj in pager.lists:
             obj.member = await self.get_member_cnt(obj.id)
         return pager
@@ -86,7 +86,7 @@ class SystemAuthRoleService(ISystemAuthRoleService):
         assert not await db.fetch_one(
             system_auth_role.select().where(system_auth_role.c.name == create_in.name.strip())
             .limit(1)), '角色名称已存在!'
-        role_dict = create_in.dict()
+        role_dict = create_in.model_dump()
         role_dict['name'] = create_in.name.strip()
         role_dict['create_time'] = int(time.time())
         role_dict['update_time'] = int(time.time())
@@ -105,7 +105,7 @@ class SystemAuthRoleService(ISystemAuthRoleService):
             .where(system_auth_role.c.id != edit_in.id,
                    system_auth_role.c.name == edit_in.name.strip())
             .limit(1)), '角色名称已存在!'
-        role_dict = edit_in.dict()
+        role_dict = edit_in.model_dump()
         role_dict['name'] = edit_in.name.strip()
         role_dict['update_time'] = int(time.time())
         del role_dict['menu_ids']

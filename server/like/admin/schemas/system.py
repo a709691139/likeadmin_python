@@ -89,7 +89,7 @@ class SystemAuthAdminOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')  # 更新时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
     # def __init__(self, avatar, **kwargs):  #     super().__init__(avatar=avatar, **kwargs)
 
@@ -111,7 +111,7 @@ class SystemAuthAdminDetailOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')  # 更新时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SystemAuthAdminSelfOneOut(BaseModel):
@@ -130,7 +130,7 @@ class SystemAuthAdminSelfOneOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')  # 更新时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SystemAuthAdminSelfOut(BaseModel):
@@ -139,7 +139,7 @@ class SystemAuthAdminSelfOut(BaseModel):
     permissions: List[str]  # 权限集合: [[*]=>所有权限, ['article:add']=>部分权限]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SystemAuthRoleDetailIn(BaseModel):
@@ -174,7 +174,7 @@ class SystemAuthRoleOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')  # 更新时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SystemAuthRoleDetailOut(SystemAuthRoleOut):
@@ -186,7 +186,7 @@ class SystemAuthRoleDetailOut(SystemAuthRoleOut):
     isDisable: int = Field(alias='is_disable')  # 是否禁用: [0=否, 1=是]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SystemAuthMenuDetailIn(BaseModel):
@@ -239,10 +239,10 @@ class SystemAuthMenuOut(BaseModel):
     isDisable: int = Field(alias='is_disable')  # 是否禁用: [0=否, 1=是]
     createTime: datetime = Field(alias='create_time')  # 创建时间
     updateTime: datetime = Field(alias='update_time')  # 更新时间
-    children: Union['SystemAuthMenuOut', None]  # 子集
+    children: Union['SystemAuthMenuOut', None] = None  # 子集
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SystemAuthPostOut(BaseModel):
@@ -259,7 +259,7 @@ class SystemAuthPostOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SystemAuthPostAddIn(BaseModel):
@@ -309,7 +309,7 @@ class SystemAuthDeptOut(BaseModel):
     updateTime: datetime = Field(alias='update_time')
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SystemAuthDeptDetailIn(BaseModel):
@@ -346,8 +346,8 @@ class SystemLogOperateIn(BaseModel):
     type: Union[str, None] = Query(default=None)  # 请求类型: GET/POST/PUT
     status: Union[int, None, EmptyStrToNone] = Query(default=None)  # 执行状态: [1=成功, 2=失败]
     url: Union[str, None] = Query(default=None)  # 请求地址
-    start_time: Union[date, None, EmptyStrToNone] = Query(alias='startTime')  # 开始时间
-    end_time: Union[date, None, EmptyStrToNone] = Query(alias='endTime')  # 结束时间
+    start_time: Union[date, None, EmptyStrToNone] = Query(alias='startTime', default=None)  # 开始时间
+    end_time: Union[date, None, EmptyStrToNone] = Query(alias='endTime', default=None)  # 结束时间
 
 
 class SystemLogOperateOut(BaseModel):
@@ -363,21 +363,21 @@ class SystemLogOperateOut(BaseModel):
     args: str  # 请求参数
     error: str  # 错误信息
     status: int  # 执行状态: [1=成功, 2=失败]
-    taskTime: str = Field(alias='task_time')  # 执行耗时
+    taskTime: int = Field(alias='task_time')  # 执行耗时
     startTime: datetime = Field(alias='start_time')  # 开始时间
     endTime: datetime = Field(alias='end_time')  # 结束时间
     createTime: datetime = Field(alias='create_time')  # 创建时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SystemLogLoginIn(BaseModel):
     """登录日志列表参数"""
     username: Union[str, None] = Query(default=None)  # 登录账号
     status: Union[int, None, EmptyStrToNone] = Query(default=None)  # 操作状态: [1=成功, 2=失败]
-    start_time: Union[date, None, EmptyStrToNone] = Query(alias='startTime')  # 开始时间
-    end_time: Union[date, None, EmptyStrToNone] = Query(alias='endTime')  # 结束时间
+    start_time: Union[date, None, EmptyStrToNone] = Query(alias='startTime' ,default=None)  # 开始时间
+    end_time: Union[date, None, EmptyStrToNone] = Query(alias='endTime' ,default=None)  # 结束时间
 
 
 class SystemLogLoginOut(BaseModel):
@@ -391,4 +391,4 @@ class SystemLogLoginOut(BaseModel):
     createTime: datetime = Field(alias='create_time')  # 创建时间
 
     class Config:
-        orm_mode = True
+        from_attributes = True

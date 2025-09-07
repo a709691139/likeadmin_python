@@ -17,6 +17,8 @@ class CommonAlbumCateOut(BaseModel):
     type: int
     createTime: datetime = Field(alias='create_time')  # 创建时间
     updateTime: datetime = Field(alias='update_time')  # 更新时间
+    class Config:
+        from_attributes = True
 
 
 class CommonAlbumOut(BaseModel):
@@ -27,10 +29,12 @@ class CommonAlbumOut(BaseModel):
     cid: int
     name: str = Field(default='')
     ext: str
-    size: str
+    size: int
     url: str = Field(alias='uri')
     createTime: datetime = Field(alias='create_time')  # 创建时间
     updateTime: datetime = Field(alias='update_time')  # 更新时间
+    class Config:
+        from_attributes = True
 
 
 class CommonAlbumAddIn(BaseModel):
@@ -40,7 +44,7 @@ class CommonAlbumAddIn(BaseModel):
     type: int
     name: str
     ext: str
-    size: str
+    size: int
     url: str
 
 

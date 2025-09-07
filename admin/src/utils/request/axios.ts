@@ -121,7 +121,16 @@ export class Axios {
         config: Partial<AxiosRequestConfig>,
         options?: Partial<RequestOptions>
     ): Promise<T> {
-        return this.request({ ...config, method: RequestMethodsEnum.GET }, options)
+        const params = {
+            ...(config.params || {})
+        }
+        Object.keys(params).forEach((key) => {
+            if (params[key] === undefined || params[key] === null || params[key] === '') {
+                delete params[key]
+            }
+        })
+        console.log("params", params)
+        return this.request({ ...config, params, method: RequestMethodsEnum.GET }, options)
     }
 
     /**

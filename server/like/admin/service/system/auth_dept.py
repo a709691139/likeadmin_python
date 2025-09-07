@@ -49,7 +49,7 @@ class SystemAuthDeptService(ISystemAuthDeptService):
         dept_all = await db.fetch_all(
             select(self.select_columns).where(system_auth_dept.c.pid >= 0, system_auth_dept.c.is_delete == 0).order_by(
                 *self.order_by))
-        return pydantic.parse_obj_as(List[SystemAuthDeptOut], dept_all)
+        return pydantic.TypeAdapter(List[SystemAuthDeptOut]).validate_python(dept_all)
 
     async def fetch_list(self, dept_list_in: SystemAuthDeptListIn):
         name = dept_list_in.name
@@ -62,7 +62,7 @@ class SystemAuthDeptService(ISystemAuthDeptService):
         depts = await db.fetch_all(
             select(self.select_columns).select_from(system_auth_dept).where(*where).order_by(*self.order_by))
         return ArrayUtil.list_to_tree(
-            [i.dict(exclude_none=True) for i in pydantic.parse_obj_as(List[SystemAuthDeptOut], depts)],
+            [i.model_dump(exclude_none=True) for i in pydantic.TypeAdapter(List[SystemAuthDeptOut]).validate_python(depts)],
             'id', 'pid', 'children')
 
     async def add(self, dept_add_in: SystemAuthDeptAddIn):
@@ -70,7 +70,7 @@ class SystemAuthDeptService(ISystemAuthDeptService):
             assert not await db.fetch_one(
                 system_auth_dept.select([system_auth_dept.c.id, system_auth_dept.c.pid, system_auth_dept.c.name]).where(
                     system_auth_dept.c.pid == 0, system_auth_dept.c.is_delete == 0)), "顶级部门只允许有一个"
-        create_dept = dept_add_in.dict()
+        create_dept = dept_add_in.model_dump()
         create_dept['create_time'] = int(time.time())
         create_dept['update_time'] = int(time.time())
         query = system_auth_dept.insert().values(**create_dept)
@@ -85,7 +85,7 @@ class SystemAuthDeptService(ISystemAuthDeptService):
         assert not (edit_dept.pid == 0 and dept_edit_in.pid > 0), "顶级部门不能修改上级"
         assert not (dept_edit_in.pid == dept_edit_in.id), "上级部门不能是自己"
 
-        edit_post = dept_edit_in.dict()
+        edit_post = dept_edit_in.model_dump()
         edit_post['update_time'] = int(time.time())
         return await db.execute(system_auth_dept.update()
                                 .where(system_auth_dept.c.id == dept_edit_in.id)

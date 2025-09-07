@@ -4,7 +4,7 @@ from typing import List
 
 import pydantic
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select
 
 from like.config import get_settings
@@ -72,12 +72,12 @@ class IndexService(IIndexService):
                                 article_table.c.update_time]).select_from(article_table).where(
             article_table.c.is_delete == 0, article_table.c.is_show == 1).order_by(article_table.c.id.desc()).limit(20)
         articles = await db.fetch_all(article_query)
-        articles = pydantic.parse_obj_as(List[ArticleDetailOut], articles)
+        articles = pydantic.TypeAdapter(List[ArticleDetailOut]).validate_python(articles)
         for article in articles:
             article.image = await UrlUtil.to_absolute_url(article.image)
 
         domain = UrlUtil.domain
-        return pydantic.parse_obj_as(IndexOut, {"domain": domain, "pages": pages, "article": articles})
+        return pydantic.TypeAdapter(IndexOut).validate_python({"domain": domain, "pages": pages, "article": articles})
 
     async def decorate(self, id_: int) -> dict:
         """装修"""
@@ -138,7 +138,7 @@ class IndexService(IIndexService):
         :return:
         """
         map = await ConfigUtil.get_map("protocol", policy_in.type)
-        return pydantic.parse_obj_as(CommonProtocol, map)
+        return pydantic.TypeAdapter(CommonProtocol).validate_python(map)
 
     # async def policy(self, type_: str) -> dict:
     #     """政策"""
@@ -166,7 +166,7 @@ class IndexService(IIndexService):
             article_table.outerjoin(
                 article_cate_table, article_table.c.cid == article_cate_table.c.id)) \
             .order_by(article_table.c.sort.desc(), article_table.c.id.desc())
-        pager = await paginate(db, query)
+        pager = await apaginate(db, query)
         for row in pager.lists:
             row.collect = False
             row.image = await UrlUtil.to_absolute_url(row.image)

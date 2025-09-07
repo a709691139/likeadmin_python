@@ -5,7 +5,7 @@ from typing import Union
 
 from fastapi import Depends, Request
 from fastapi_pagination.bases import AbstractPage
-from fastapi_pagination.ext.databases import paginate
+from fastapi_pagination.ext.databases import apaginate
 from sqlalchemy import select
 
 from like.admin.config import AdminConfig
@@ -101,7 +101,7 @@ class SystemAuthAdminService(ISystemAuthAdminService):
                 auths.append('')
         else:
             auths.append('*')
-        admin = SystemAuthAdminSelfOneOut.from_orm(sys_admin)
+        admin = SystemAuthAdminSelfOneOut.model_validate(sys_admin)
         admin.avatar = await UrlUtil.to_absolute_url(admin.avatar)
         return SystemAuthAdminSelfOut(user=admin, permissions=auths)
 
@@ -124,7 +124,7 @@ class SystemAuthAdminService(ISystemAuthAdminService):
         query = select(columns).where(*where) \
             .select_from(system_auth_admin) \
             .order_by(system_auth_admin.c.id.desc(), system_auth_admin.c.sort.desc())
-        pager = await paginate(db, query)
+        pager = await apaginate(db, query)
         # 处理返回结果
         for obj in pager.lists:
             obj.avatar = await UrlUtil.to_absolute_url(obj.avatar)
@@ -149,7 +149,7 @@ class SystemAuthAdminService(ISystemAuthAdminService):
             system_auth_admin.select().where(
                 system_auth_admin.c.id == id_, system_auth_admin.c.is_delete == 0).limit(1))
         assert sys_admin, '账号已不存在！'
-        sys_admin_out = SystemAuthAdminDetailOut.from_orm(sys_admin)
+        sys_admin_out = SystemAuthAdminDetailOut.model_validate(sys_admin)
         sys_admin_out.avatar = await UrlUtil.to_absolute_url(sys_admin_out.avatar)
         sys_admin_out.roleIds = [int(i) for i in sys_admin_out.roleIds.split(',') if i.isdigit()]
         sys_admin_out.deptIds = [int(i) for i in sys_admin_out.deptIds.split(',') if i.isdigit()]
@@ -200,7 +200,7 @@ class SystemAuthAdminService(ISystemAuthAdminService):
                    system_auth_admin.c.id != admin_edit_in.id)
             .limit(1)), '昵称已存在换一个吧！'
         # 更新管理员信息
-        admin_dict = admin_edit_in.dict()
+        admin_dict = admin_edit_in.model_dump()
         admin_dict['role_ids'] = ','.join([str(i) for i in admin_edit_in.role_ids])
         admin_dict['dept_ids'] = ','.join([str(i) for i in admin_edit_in.dept_ids])
         admin_dict['post_ids'] = ','.join([str(i) for i in admin_edit_in.post_ids])
@@ -240,7 +240,7 @@ class SystemAuthAdminService(ISystemAuthAdminService):
                    system_auth_admin.c.is_delete == 0).limit(1))
         assert sys_admin, '账号不存在了!'
         # 更新管理员信息
-        admin_dict = admin_update_in.dict()
+        admin_dict = admin_update_in.model_dump()
         del admin_dict['curr_password']
         admin_dict['avatar'] = await UrlUtil.to_relative_url(admin_update_in.avatar) \
             if admin_update_in.avatar else '/api/static/backend_avatar.png'

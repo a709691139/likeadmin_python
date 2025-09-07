@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Union
+from typing import Optional, Union
 
 from fastapi import Query
 from pydantic import BaseModel, Field
@@ -14,10 +14,13 @@ class ArticleCateOut(BaseModel):
     id: int
     name: str = Field(default='')
     sort: int
-    number: Union[int, None]
+    number: Union[int, None] = Field(default=None)
     isShow: int = Field(alias='is_show')
     createTime: datetime = Field(alias='create_time')  # 创建时间
     updateTime: datetime = Field(alias='update_time')  # 更新时间
+
+    class Config:
+        from_attributes = True
 
 
 class ArticleCateListIn(BaseModel):
@@ -71,9 +74,9 @@ class ArticleListIn(BaseModel):
     """
     title: str = Query(default='')
     cid: Union[int, None, EmptyStrToNone] = Query(default=None)
-    is_show: Union[int, None, EmptyStrToNone] = Field(alias='isShow', ge=0, le=1, default=1)  # 是否显示: [0=否, 1=是]
-    start_time: Union[date, None, EmptyStrToNone] = Query(alias='startTime')  # 开始时间
-    end_time: Union[date, None, EmptyStrToNone] = Query(alias='endTime')  # 结束时间
+    is_show: Optional[int] = Query(alias='isShow', ge=0, le=1, default=1)  # 是否显示: [0=否, 1=是]
+    start_time: Optional[date] = Query(alias='startTime' ,default=None)  # 开始时间
+    end_time: Optional[date] = Query(alias='endTime' ,default=None)  # 结束时间
 
 
 class ArticleDetailIn(BaseModel):
@@ -94,7 +97,7 @@ class ArticleAddIn(BaseModel):
     summary: str
     author: str
     content: str
-    sort: str
+    sort: int
     is_show: int = Field(alias='isShow', ge=0, le=1)  # 是否显示: [0=否, 1=是]
 
 
@@ -134,6 +137,8 @@ class ArticleListOut(BaseModel):
     isShow: int = Field(alias='is_show', ge=0, le=1)  # 是否显示: [0=否, 1=是]
     createTime: datetime = Field(alias='create_time')
     updateTime: datetime = Field(alias='update_time')  # 更新时间
+    class Config:
+        from_attributes = True
 
 
 class ArticleDetailOut(BaseModel):
@@ -153,3 +158,5 @@ class ArticleDetailOut(BaseModel):
     isShow: int = Field(alias="is_show", ge=0, le=1)  # 是否显示: [0=否, 1=是]
     createTime: datetime = Field(alias='create_time')
     updateTime: datetime = Field(alias='update_time')  # 更新时间
+    class Config:
+        from_attributes = True

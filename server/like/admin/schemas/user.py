@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Union
+from typing import Optional, Union
 
 from fastapi import Query
 from pydantic import BaseModel, Field
@@ -12,9 +12,9 @@ class UserListIn(BaseModel):
     """用户列表参数"""
     keyword: str = Field(default='')  # 搜索关键词
     channel: Union[LoginClientEnum, None, EmptyStrToNone] = Field(
-        default='')  # 客户端类型: [1=微信小程序, 2=微信公众号, 3=手机H5；4=电脑PC, 5=苹果APP, 6=安卓APP]
-    start_time: Union[date, datetime, None, EmptyStrToNone] = Query(alias='startTime')  # 开始时间
-    end_time: Union[date, datetime, None, EmptyStrToNone] = Query(alias='endTime')  # 结束时间
+        default=None)  # 客户端类型: [1=微信小程序, 2=微信公众号, 3=手机H5；4=电脑PC, 5=苹果APP, 6=安卓APP]
+    start_time: Optional[date] = Query(alias='startTime', default=None)  # 开始时间
+    end_time: Optional[date] = Query(alias='endTime', default=None)  # 结束时间
 
 
 class UserDetailIn(BaseModel):
@@ -39,8 +39,10 @@ class UserInfoOut(BaseModel):
     nickname: str
     username: str
     mobile: str
-    sex: str
-    channel: str
+    sex: int
+    channel: int
     lastLoginIp: str = Field(alias='last_login_ip')
     lastLoginTime: datetime = Field(alias='last_login_time')  # 最后登录时间
     createTime: datetime = Field(alias='create_time')  # 创建时间
+    class Config:
+        from_attributes = True
