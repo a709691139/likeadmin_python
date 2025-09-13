@@ -48,6 +48,8 @@ class UserService(IUserService):
 
     async def center(self, user_id: int) -> UserCenterOut:
         """个人中心"""
+        if not user_id:
+            return {}
         obj = await db.fetch_one(user_table.select().where(user_table.c.id == user_id).limit(1))
         res = UserCenterOut.model_validate(obj)
         if res.avatar:

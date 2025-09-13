@@ -1,5 +1,6 @@
 from fastapi import Query
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+import re
 
 from like.common.enums import LoginTypeEnum, LoginClientEnum
 
@@ -19,9 +20,25 @@ class FrontRegisterIn(BaseModel):
     """
     注册 入参
     """
-    username: str = Query(min_length=3, max_length=12, regex='^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{3,12}$')
-    password: str = Query(min_length=6, max_length=12)
+    username: str = Field(min_length=3, max_length=12, description="用户名必须包含字母和数字，3-12位")
+    password: str = Field(min_length=6, max_length=12)
     client: LoginClientEnum
+
+    @field_validator('username')
+    def validate_username(cls, v):
+        # 检查是否只包含字母和数字
+        if not re.match(r'^[0-9A-Za-z]+$', v):
+            raise ValueError('用户名只能包含字母和数字')
+        
+        # 检查是否包含至少一个数字
+        if not re.search(r'[0-9]', v):
+            raise ValueError('用户名必须包含至少一个数字')
+        
+        # 检查是否包含至少一个字母
+        if not re.search(r'[A-Za-z]', v):
+            raise ValueError('用户名必须包含至少一个字母')
+        
+        return v
 
 
 class FrontLoginCheckIn(BaseModel):
@@ -30,7 +47,7 @@ class FrontLoginCheckIn(BaseModel):
     """
     scene: LoginTypeEnum # 登录方式
     client: LoginClientEnum  # 登录端
-    username: str = Query(default=None)
-    mobile: str = Query(default=None)
-    password: str = Query(default=None)
-    code: str = Query(default=None)
+    username: str = Field(default=None)
+    mobile: str = Field(default=None)
+    password: str = Field(default=None)
+    code: str = Field(default=None)

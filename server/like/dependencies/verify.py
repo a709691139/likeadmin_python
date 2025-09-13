@@ -100,7 +100,7 @@ async def front_login_verify(request: Request):
         return
 
     # Token是否为空
-    if not token:
+    if not token or token == 'null':
         raise AppException(HttpResp.TOKEN_EMPTY)
 
     # Token是否过期

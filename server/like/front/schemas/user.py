@@ -1,9 +1,9 @@
 from datetime import datetime
+import re
 from typing import Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing_extensions import Literal
-
 
 class UserCenterOut(BaseModel):
     """个人中心返回"""
@@ -39,15 +39,22 @@ class UserEditIn(BaseModel):
 
 class UserChangePwdIn(BaseModel):
     """修改密码参数"""
-    password: str = Field(min_length=6, max_length=20,
-                          regex='^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$')  # 密码,必须是6-20位字母+数字组合
+    password: str = Field(min_length=6, max_length=20)  # 密码,必须是6-20位字母+数字组合
     old_password: str = Field(alias='oldPassword')  # 当前密码
+
+    @field_validator('password')
+    def validate_password(cls, v):
+        # 使用Python标准re库，支持look-around断言
+        pattern = r'^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$'
+        if not re.match(pattern, v):
+            raise ValueError('密码必须是6-20位字母和数字的组合（不能全是字母或全是数字）')
+        return v
 
 
 class UserBindMobileIn(BaseModel):
     """绑定手机参数"""
     type: Literal['bind', 'change']
-    mobile: str = Field(regex='^[1][3,4,5,6,7,8,9][0-9]{9}$')  # 手机号
+    mobile: str = Field(pattern='^[1][3,4,5,6,7,8,9][0-9]{9}$')  # 手机号
     code: str  # 验证码
 
 

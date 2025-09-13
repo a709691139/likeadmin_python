@@ -17,7 +17,7 @@ const requestHooks: RequestHooks = {
         }
         const token = getToken()
         // 添加token
-        if (withToken && token) {
+        if (withToken && token&& token!=='null') {
             options.header.token = token
         }
         return options
