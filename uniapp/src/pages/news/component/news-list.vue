@@ -49,7 +49,7 @@ watch(
 const queryList = async (pageNo, pageSize) => {
     try {
         const { lists } = await getArticleList({
-            cid: props.cid,
+            cid: props.cid||'',
             pageNo,
             pageSize
         })

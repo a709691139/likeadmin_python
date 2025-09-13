@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
@@ -27,9 +28,10 @@ def configure_exception(app: FastAPI):
         if errs and errs[0].get('type', '').startswith('type_error.'):
             resp = HttpResp.PARAMS_TYPE_ERROR
         logger.warning('validation_exception_handler: url=[%s], errs=[%s]', request.url.path, errs)
+        serializable_errs = jsonable_encoder(errs)
         return JSONResponse(
             status_code=200,
-            content={'code': resp.code, 'msg': resp.msg, 'data': errs})
+            content={'code': resp.code, 'msg': resp.msg, 'data': serializable_errs})
 
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):

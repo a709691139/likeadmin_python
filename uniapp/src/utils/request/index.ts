@@ -15,6 +15,17 @@ const requestHooks: RequestHooks = {
         if (baseUrl) {
             options.url = `${baseUrl}${options.url}`
         }
+        if(options.method==='GET'){
+            // 删除query参数里为空字符串
+           if(options.data){
+                Object.keys(options.data).forEach(key => {
+                    if(options.data[key]===''||options.data[key]===null){
+                        delete options.data[key]
+                    }
+                })
+           }
+        }
+        
         const token = getToken()
         // 添加token
         if (withToken && token&& token!=='null') {

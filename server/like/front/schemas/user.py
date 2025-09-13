@@ -21,10 +21,10 @@ class UserCenterOut(BaseModel):
 
 class UserInfoOut(UserCenterOut):
     """个人信息返回"""
-    sex: str  # 用户性别
-    isPassword: Union[bool, None] = Field(alias='is_password')  # 用户性别
-    isBindMnp: Union[bool, None] = Field(alias='is_bind_mnp')  # 用户性别
-    version: Union[str, None]  # 版本
+    sex: int  # 用户性别
+    isPassword: Union[bool, None] = Field(alias='is_password', default=False)  # 用户性别
+    isBindMnp: Union[bool, None] = Field(alias='is_bind_mnp', default=False)  # 用户性别
+    version: Union[str, None] = Field(alias='is_bind_mnp', default=None) # 版本
     createTime: datetime = Field(alias='create_time')  # 创建时间
 
     class Config:

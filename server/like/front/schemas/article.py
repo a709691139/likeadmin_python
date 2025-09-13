@@ -47,7 +47,7 @@ class ArticleListIn(BaseModel):
     """
     cid: Union[int, None, EmptyStrToNone] = Query(default=None)  # 分类ID
     keyword: Union[str, None] = Query(default=None)  # 关键词
-    sort: Union[ArticleListInSortEnum, EmptyStrToNone, None]
+    sort: ArticleListInSortEnum = Query(default='')
 
 
 class ArticleDetailIn(BaseModel):
@@ -91,7 +91,7 @@ class ArticleSearchOut(BaseModel):
     image: str
     intro: str
     visit: int  # 浏览
-    collect: Union[bool, None]  # 收藏
+    collect: bool = Field(default=False)  # 收藏
     createTime: datetime = Field(alias='create_time')  # 创建时间
     class Config:
         from_attributes = True

@@ -427,7 +427,7 @@ const typeValue = computed<number>(() => {
             return 0
     }
 })
-const visible: Ref<boolean> = inject('visible')!
+const visible: Ref<boolean> = inject('visible', ref(false))!
 const previewUrl = ref('')
 const showPreview = ref(false)
 const {
@@ -464,8 +464,12 @@ const {
 
 const getData = async () => {
     await getCateLists()
-    treeRef.value?.setCurrentKey(cateId.value)
-    getFileList()
+    setTimeout(() => {
+        treeRef.value?.setCurrentKey(cateId.value)
+    }, 50)
+    setTimeout(() => {
+        getFileList()
+    }, 150)
 }
 
 const handlePreview = (url: string) => {
@@ -474,7 +478,7 @@ const handlePreview = (url: string) => {
 }
 watch(
     visible,
-    async (val: boolean) => {
+    (val: boolean) => {
         if (val) {
             getData()
         }
