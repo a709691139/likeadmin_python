@@ -126,9 +126,11 @@ class LoginService(ILoginService):
                 sa.or_(user_auth_table.c.unionid == union_id, user_auth_table.c.openid == open_id)).limit(1))
         user = None
         if user_auth:
+            user_auth = user_auth._asdict()
+            print("user_auth", user_auth)
             user = await db.fetch_one(
                 select(self.select_columns).select_from(self.table).where(
-                    self.table.c.is_delete == 0, self.table.c.id == user_auth.user_id).limit(1))
+                    self.table.c.is_delete == 0, self.table.c.id == user_auth['user_id']).limit(1))
 
         if not user:
             user_id = await self.insert_new_user()
@@ -137,14 +139,14 @@ class LoginService(ILoginService):
                     self.table.c.is_delete == 0, self.table.c.id == user_id).limit(1))
 
         if not user_auth:
-            user_auth = await self.insert_new_user_auth(user.id, union_id, client, open_id)
+            user_auth = await self.insert_new_user_auth(user['id'], union_id, client, open_id)
 
-        if not user_auth.unionid:
-            await self.update_user_auth(user.id, unionid=union_id)
+        if not user_auth['unionid']:
+            await self.update_user_auth(user['id'], unionid=union_id)
 
-        await self.update_user_info(user.id, self.request.client.host, int(time.time()))
+        await self.update_user_info(user['id'], self.request.client.host, int(time.time()))
 
-        return await self.make_login_token(user.id, user.mobile)
+        return await self.make_login_token(user['id'], user['mobile'])
 
     async def update_user_auth(self, user_id, **kwargs):
         return await db.execute(user_auth_table.update()
