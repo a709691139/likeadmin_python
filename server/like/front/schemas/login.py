@@ -30,10 +30,6 @@ class FrontRegisterIn(BaseModel):
         if not re.match(r'^[0-9A-Za-z]+$', v):
             raise ValueError('用户名只能包含字母和数字')
         
-        # 检查是否包含至少一个数字
-        if not re.search(r'[0-9]', v):
-            raise ValueError('用户名必须包含至少一个数字')
-        
         # 检查是否包含至少一个字母
         if not re.search(r'[A-Za-z]', v):
             raise ValueError('用户名必须包含至少一个字母')
