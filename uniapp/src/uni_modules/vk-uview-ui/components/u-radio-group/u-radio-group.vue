@@ -28,11 +28,11 @@ export default {
 	props: {
 		// 匹配某一个radio组件，如果某个radio的name值等于此值，那么这个radio就被会选中
 		value: {
-			type: [String, Number],
+			type: [String, Number, Array, Boolean],
 			default: ""
 		},
 		modelValue: {
-			type: [String, Number],
+			type: [String, Number, Array, Boolean],
 			default: ""
 		},
 		// 是否禁用所有单选框
@@ -109,7 +109,7 @@ export default {
 	},
 	computed: {
 		valueCom() {
-			// #ifndef VUE3
+			// #ifdef VUE2
 			return this.value;
 			// #endif
 
@@ -130,7 +130,8 @@ export default {
 				this.shape,
 				this.iconSize,
 				this.width,
-				this.wrap
+				this.wrap,
+				this.modelValue
 			];
 		}
 	},

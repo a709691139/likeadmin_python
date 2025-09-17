@@ -35,7 +35,8 @@
 
 <script>
 	// 获取系统状态栏的高度
-	let systemInfo = uni.getSystemInfoSync();
+	import getSystemInfoSync from '../../libs/function/getSystemInfoSync.js'
+	let systemInfo = getSystemInfoSync();
 	let menuButtonInfo = {};
 	// 如果是小程序，获取右上角胶囊的尺寸信息，避免导航栏右侧内容与胶囊重叠(支付宝小程序非本API，尚未兼容)
 	// #ifdef MP-WEIXIN || MP-BAIDU || MP-TOUTIAO || MP-QQ

@@ -27,7 +27,7 @@
 				<u-icon class="u-icon" :name="successIcon" size="20" :color="successColor"></u-icon>
 			</view> -->
 			<u-line-progress
-				v-if="showProgress && item.progress > 0 && !item.error && item.progress < 100"
+				v-if="showProgress && item.progress > 0 && item.progress != 100 && !item.error"
 				:show-percent="false"
 				height="16"
 				class="u-progress"
@@ -457,6 +457,9 @@ export default {
 				name: this.name,
 				formData: this.formData,
 				header: this.header,
+				// #ifdef MP-ALIPAY
+				fileType:'image',
+				// #endif
 				success: res => {
 					// 判断是否json字符串，将其转为json格式
 					let data = this.toJson && this.$u.test.jsonString(res.data) ? JSON.parse(res.data) : res.data;
@@ -536,8 +539,8 @@ export default {
 		// 执行移除图片的动作，上方代码只是判断是否可以移除
 		handlerDeleteItem(index) {
 			// 如果文件正在上传中，终止上传任务，进度在0 < progress < 100则意味着正在上传
-			if (this.lists[index].process < 100 && this.lists[index].process > 0) {
-				typeof this.lists[index].uploadTask != "undefined" && this.lists[index].uploadTask.abort();
+			if (this.lists[index].progress < 100 && this.lists[index].progress > 0) {
+				typeof this.lists[index].uploadTask != 'undefined' && this.lists[index].uploadTask.abort();
 			}
 			this.lists.splice(index, 1);
 			this.$forceUpdate();
@@ -549,6 +552,7 @@ export default {
 			// 判断索引的合法范围
 			if (index >= 0 && index < this.lists.length) {
 				this.lists.splice(index, 1);
+				this.$emit('on-list-change', this.lists, this.index);
 			}
 		},
 		// 预览图片

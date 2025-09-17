@@ -16,7 +16,7 @@
 				:show="loading"
 				class="u-switch__loading"
 				:size="size * 0.6"
-				:color="loadingColor"
+				:color="loadingColor || '#c7c7c7'"
 			/>
 		</view>
 	</view>
@@ -96,7 +96,7 @@ export default {
 	},
 	computed: {
 		valueCom() {
-			// #ifndef VUE3
+			// #ifdef VUE2
 			return this.value;
 			// #endif
 

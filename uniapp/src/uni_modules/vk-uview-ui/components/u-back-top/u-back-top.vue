@@ -1,8 +1,8 @@
 <template>
 	<view @tap="backToTop" class="u-back-top" :class="['u-back-top--mode--' + mode]" :style="[{
-		bottom: bottom + 'rpx',
-		right: right + 'rpx',
-		borderRadius: mode == 'circle' ? '10000rpx' : '8rpx',
+		bottom: bottom + 'px',
+		right: right + 'px',
+		borderRadius: mode == 'circle' ? '50%' : '4px',
 		zIndex: uZIndex,
 		opacity: opacity
 	}, customStyle]">
@@ -19,6 +19,7 @@
 <script>
 	export default {
 		name: 'u-back-top',
+		emits: ["top"],
 		props: {
 			// 返回顶部的形状，circle-圆形，square-方形
 			mode: {
@@ -45,20 +46,20 @@
 				type: [Number, String],
 				default: 0
 			},
-			// 距离顶部多少距离显示，单位rpx
+			// 距离顶部多少距离显示，单位px
 			top: {
-				type: [Number, String],
-				default: 400
-			},
-			// 返回顶部按钮到底部的距离，单位rpx
-			bottom: {
 				type: [Number, String],
 				default: 200
 			},
-			// 返回顶部按钮到右边的距离，单位rpx
+			// 返回顶部按钮到底部的距离，单位px
+			bottom: {
+				type: [Number, String],
+				default: 100
+			},
+			// 返回顶部按钮到右边的距离，单位px
 			right: {
 				type: [Number, String],
-				default: 40
+				default: 20
 			},
 			// 层级
 			zIndex: {
@@ -68,26 +69,31 @@
 			// 图标的样式，对象形式
 			iconStyle: {
 				type: Object,
-				default() {
+				default () {
 					return {
 						color: '#909399',
-						fontSize: '38rpx'
+						fontSize: '19px'
 					}
 				}
 			},
 			// 整个组件的样式
 			customStyle: {
 				type: Object,
-				default() {
+				default () {
 					return {}
 				}
+			},
+			// 如果此值为true，这强制显示返回顶部按钮，不根据scrollTop的值，如果为false，根据scrollTop的值判断是否显示
+			showBackTop: {
+				type: Boolean,
+				default: false
 			}
 		},
 		watch: {
-			showBackTop(nVal, oVal) {
+			showBackTopCom(nVal, oVal) {
 				// 当组件的显示与隐藏状态发生跳变时，修改组件的层级和不透明度
 				// 让组件有显示和消失的动画效果，如果用v-if控制组件状态，将无设置动画效果
-				if(nVal) {
+				if (nVal) {
 					this.uZIndex = this.zIndex;
 					this.opacity = 1;
 				} else {
@@ -97,10 +103,12 @@
 			}
 		},
 		computed: {
-			showBackTop() {
-				// 由于scrollTop为页面的滚动距离，默认为px单位，这里将用于传入的top(rpx)值
+			showBackTopCom() {
+				// 如果强制显示返回顶部按钮，直接返回true
+				if (this.showBackTop) return true;
+				// 由于scrollTop为页面的滚动距离，默认为px单位，这里将用于传入的top(px)值
 				// 转为px用于比较，如果滚动条到顶的距离大于设定的距离，就显示返回顶部的按钮
-				return this.scrollTop > uni.upx2px(this.top);
+				return this.scrollTop > this.top;
 			},
 		},
 		data() {
@@ -117,6 +125,7 @@
 					scrollTop: 0,
 					duration: this.duration
 				});
+				this.$emit('top');
 			}
 		}
 	}
@@ -124,10 +133,10 @@
 
 <style lang="scss" scoped>
 	@import "../../libs/css/style.components.scss";
-	
+
 	.u-back-top {
-		width: 80rpx;
-		height: 80rpx;
+		width: 40px;
+		height: 40px;
 		position: fixed;
 		z-index: 9;
 		@include vue-flex;
@@ -137,14 +146,14 @@
 		color: $u-content-color;
 		align-items: center;
 		transition: opacity 0.4s;
-		
+
 		&__content {
 			@include vue-flex;
 			flex-direction: column;
 			align-items: center;
-			
+
 			&__tips {
-				font-size: 24rpx;
+				font-size: 12px;
 				transform: scale(0.8);
 				line-height: 1;
 			}

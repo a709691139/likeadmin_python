@@ -26,6 +26,7 @@
 	 */
 	export default {
 		name: "u-col",
+		emits: ["click"],
 		props: {
 			// 占父容器宽度的多少等分，总分为12份
 			span: {
@@ -87,7 +88,7 @@
 		},
 		methods: {
 			click(e) {
-				this.$emit('click');
+				this.$emit('click', e);
 			}
 		}
 	}
@@ -107,50 +108,50 @@
 	}
 
 	.u-col-1 {
-		width: calc(100%/12);
+		width: calc(100% / 12);
 	}
 
 	.u-col-2 {
-		width: calc(100%/12 * 2);
+		width: calc(100% / 12 * 2);
 	}
 
 	.u-col-3 {
-		width: calc(100%/12 * 3);
+		width: calc(100% / 12 * 3);
 	}
 
 	.u-col-4 {
-		width: calc(100%/12 * 4);
+		width: calc(100% / 12 * 4);
 	}
 
 	.u-col-5 {
-		width: calc(100%/12 * 5);
+		width: calc(100% / 12 * 5);
 	}
 
 	.u-col-6 {
-		width: calc(100%/12 * 6);
+		width: calc(100% / 12 * 6);
 	}
 
 	.u-col-7 {
-		width: calc(100%/12 * 7);
+		width: calc(100% / 12 * 7);
 	}
 
 	.u-col-8 {
-		width: calc(100%/12 * 8);
+		width: calc(100% / 12 * 8);
 	}
 
 	.u-col-9 {
-		width: calc(100%/12 * 9);
+		width: calc(100% / 12 * 9);
 	}
 
 	.u-col-10 {
-		width: calc(100%/12 * 10);
+		width: calc(100% / 12 * 10);
 	}
 
 	.u-col-11 {
-		width: calc(100%/12 * 11);
+		width: calc(100% / 12 * 11);
 	}
 
 	.u-col-12 {
-		width: calc(100%/12 * 12);
+		width: calc(100% / 12 * 12);
 	}
 </style>

@@ -219,7 +219,7 @@ export default {
 	},
 	computed: {
 		valueCom() {
-			// #ifndef VUE3
+			// #ifdef VUE2
 			return this.value;
 			// #endif
 
@@ -250,9 +250,12 @@ export default {
 	watch: {
 		// 如果是异步关闭时，外部修改v-model的值为false时，重置内部的loading状态
 		// 避免下次打开的时候，状态混乱
-		valueCom(n) {
-			if (n === true) this.loading = false;
-			this.popupValue = n;
+		valueCom:{
+			immediate: true,
+			handler(n){
+				if (n === true) this.loading = false;
+				this.popupValue = n;
+			}
 		}
 	},
 	methods: {

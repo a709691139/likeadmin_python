@@ -41,7 +41,7 @@ export default {
 		// 组件的整体大小
 		size: {
 			type: [String, Number],
-			default: 34
+			default: ""
 		},
 		// 形状，square为方形，circle为原型
 		shape: {
@@ -88,7 +88,8 @@ export default {
 				width: null,
 				height: null,
 				value: null,
-				wrap: null
+				wrap: null,
+				modelValue: null
 			}
 		};
 	},

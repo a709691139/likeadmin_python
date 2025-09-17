@@ -14,6 +14,12 @@
 	 */
 	export default {
 		name: "u-th",
+		// #ifdef MP-WEIXIN
+		// 将自定义节点设置成虚拟的，更加接近Vue组件的表现，能更好的使用flex属性
+		options: {
+			virtualHost: true
+		},
+		// #endif
 		props: {
 			// 宽度，百分比或者具体带单位的值，如30%， 200rpx等，一般使用百分比
 			width: {
@@ -39,7 +45,7 @@
 				style.padding = this.parent.padding;
 				style.borderBottom = `solid 1px ${this.parent.borderColor}`;
 				style.borderRight = `solid 1px ${this.parent.borderColor}`;
-				Object.assign(style, this.parent.style);
+				Object.assign(style, this.parent.thStyle);
 				this.thStyle = style;
 			}
 		}

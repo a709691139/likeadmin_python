@@ -92,7 +92,7 @@
 				arrowColor: '', // 箭头的颜色
 				hoverClass: '', // 头部按下时的效果样式类
 				arrow: true, // 是否显示右侧箭头
-				
+
 			};
 		},
 		watch: {
@@ -111,7 +111,8 @@
 				this.parent = this.$u.$parent.call(this, 'u-collapse');
 				if(this.parent) {
 					this.nameSync = this.name ? this.name : this.parent.childrens.length;
-					this.parent.childrens.push(this);
+					// 不存在时才添加本实例
+					!this.parent.childrens.includes(this) && this.parent.childrens.push(this);
 					this.headStyle = this.parent.headStyle;
 					this.bodyStyle = this.parent.bodyStyle;
 					this.arrowColor = this.parent.arrowColor;
@@ -142,7 +143,12 @@
 					show: this.isShow
 				})
 				// 只有在打开时才发出事件
-				if (this.isShow) this.parent && this.parent.onChange();
+				if (this.isShow) {
+					this.parent && this.parent.onChange();
+					this.$nextTick(() => {
+						this.queryRect();
+					});
+				}
 				this.$forceUpdate();
 			},
 			// 查询内容高度
@@ -162,7 +168,7 @@
 
 <style lang="scss" scoped>
 	@import "../../libs/css/style.components.scss";
-	
+
 	.u-collapse-head {
 		position: relative;
 		@include vue-flex;

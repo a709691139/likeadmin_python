@@ -3,7 +3,8 @@
 		height: height == 'auto' ? 'auto' : height + 'rpx',
 		backgroundColor: bgColor,
 		marginBottom: marginBottom + 'rpx',
-		marginTop: marginTop + 'rpx'
+		marginTop: marginTop + 'rpx',
+		paddingBottom: paddingBottom + 'rpx',
 	}" @tap="click">
 		<view class="u-divider-line" :class="[type ? 'u-divider-line--bordercolor--' + type : '']" :style="[lineStyle]"></view>
 		<view v-if="useSlot" class="u-divider-text" :style="{
@@ -77,6 +78,11 @@ export default {
 		},
 		// 下边距
 		marginBottom: {
+			type: [String, Number],
+			default: 0
+		},
+		// 下内边距（如果本组件下面没有其他元素了，则用marginBottom会无效，需要用paddingBottom）
+		paddingBottom: {
 			type: [String, Number],
 			default: 0
 		},

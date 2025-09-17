@@ -30,7 +30,7 @@
 	 */
 	export default {
 		name: "u-subsection",
-    emits: ["change"],
+		emits: ["change","update:modelValue", "input"],
 		props: {
 			// tab的数据
 			list: {
@@ -38,6 +38,14 @@
 				default () {
 					return [];
 				}
+			},
+			value: {
+				type: [String, Number],
+				default: 0
+			},
+			modelValue: {
+				type: [String, Number],
+				default: 0
 			},
 			// 当前活动的tab的index
 			current: {
@@ -113,33 +121,47 @@
 				currentIndex: this.current,
 				buttonPadding: 3, // mode = button 时，组件的内边距
 				borderRadius: 5, // 圆角值
-				firstTimeVibrateShort: true // 组件初始化时，会触发current变化，此时不应震动
+				firstTimeVibrateShort: true ,// 组件初始化时，会触发current变化，此时不应震动
+				listInfo:[]
 			};
 		},
 		watch: {
-			current: {
+			valueCom: {
 				immediate: true,
 				handler(nVal) {
+					if (!nVal) nVal = 0;
 					this.currentIndex = nVal;
 					this.changeSectionStatus(nVal);
 				}
-			}
+			},
+			current: {
+				immediate: true,
+				handler(nVal) {
+					if (!nVal) nVal = this.valueCom || 0;
+					this.currentIndex = nVal;
+					this.changeSectionStatus(nVal);
+				}
+			},
+			list: {
+				deep:true,
+				handler(nVal=[]) {
+					this.listInfoFn();
+					setTimeout(() => {
+						this.getTabsInfo();
+					}, 10);
+				}
+			},
+			
 		},
 		computed: {
-			listInfo(){
-				let { list =[] } = this;
-				return this.list.map((val, index) => {
-					if (typeof val != 'object') {
-						let obj = {
-							width: 0,
-							name: val,
-						};
-						return obj;
-					} else {
-						val.width = 0;
-						return val;
-					}
-				});
+			valueCom() {
+				// #ifdef VUE2
+				return this.value;
+				// #endif
+			
+				// #ifdef VUE3
+				return this.modelValue;
+				// #endif
 			},
 			// 设置mode=subsection时，滑块特有的样式
 			noBorderRight() {
@@ -219,11 +241,27 @@
 			}
 		},
 		mounted() {
+			this.listInfoFn();
 			setTimeout(() => {
 				this.getTabsInfo();
 			}, 10);
 		},
 		methods: {
+			listInfoFn(){
+				let { list =[] } = this;
+				this.listInfo = this.list.map((val, index) => {
+					if (typeof val != 'object') {
+						let obj = {
+							width: 0,
+							name: val,
+						};
+						return obj;
+					} else {
+						return val;
+					}
+				});
+				return this.listInfo;
+			},
 			// 改变滑块的样式
 			changeSectionStatus(nVal) {
 				if (this.mode == 'subsection') {
@@ -257,6 +295,8 @@
 				this.currentIndex = index;
 				this.changeSectionStatus(index);
 				this.$emit('change', Number(index));
+				this.$emit("input", Number(index));
+				this.$emit("update:modelValue", Number(index));
 			},
 			// 获取各个tab的节点信息
 			getTabsInfo() {

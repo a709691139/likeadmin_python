@@ -3,7 +3,7 @@
 		<view
 			class="u-tabbar__content safe-area-inset-bottom"
 			:style="{
-				height: $u.addUnit(height),
+				height: addUnit(height),
 				backgroundColor: bgColor
 			}"
 			:class="{
@@ -64,11 +64,11 @@
 				}"
 			></view>
 		</view>
-		<!-- 这里加上一个48rpx的高度,是为了增高有凸起按钮时的防塌陷高度(也即按钮凸出来部分的高度) -->
+		<!-- 这里加上一个24px的高度,是为了增高有凸起按钮时的防塌陷高度(也即按钮凸出来部分的高度) -->
 		<view
 			class="u-fixed-placeholder safe-area-inset-bottom"
 			:style="{
-				height: `calc(${$u.addUnit(height)} + ${midButton ? 48 : 0}rpx)`
+				height: `calc(${addUnit(height)} + ${midButton ? 24 : 0}px)`
 			}"
 		></view>
 	</view>
@@ -97,20 +97,20 @@ export default {
 			type: String,
 			default: "#ffffff"
 		},
-		// tabbar的高度，默认50px，单位任意，如果为数值，则为rpx单位
+		// tabbar的高度，默认50px，单位任意，如果为数值，则为px单位
 		height: {
 			type: [String, Number],
-			default: 100
+			default: "50px"
 		},
-		// 非凸起图标的大小，单位任意，数值默认rpx
+		// 非凸起图标的大小，单位任意，数值默认px
 		iconSize: {
 			type: [String, Number],
-			default: 40
+			default: "24px"
 		},
-		// 凸起的图标的大小，单位任意，数值默认rpx
+		// 凸起的图标的大小，单位任意，数值默认px
 		midButtonSize: {
 			type: [String, Number],
-			default: 90
+			default: "45px"
 		},
 		// 激活时的演示，包括字体图标，提示文字等的演示
 		activeColor: {
@@ -144,10 +144,10 @@ export default {
 			type: Boolean,
 			default: true
 		},
-		// 是否隐藏原生tabbar
+		// 是否隐藏原生tabbar，默认为false
 		hideTabBar: {
 			type: Boolean,
-			default: true
+			default: false
 		}
 	},
 	data() {
@@ -162,12 +162,14 @@ export default {
 		if (this.hideTabBar) uni.hideTabBar();
 		// 获取引入了u-tabbar页面的路由地址，该地址没有路径前面的"/"
 		let pages = getCurrentPages();
-		// 页面栈中的最后一个即为项为当前页面，route属性为页面路径
-		this.pageUrl = pages[pages.length - 1].route;
+		if (pages.length > 0) {
+			// 页面栈中的最后一个即为项为当前页面，route属性为页面路径
+			this.pageUrl = pages[pages.length - 1].route;
+		}
 	},
 	computed: {
 		valueCom() {
-			// #ifndef VUE3
+			// #ifdef VUE2
 			return this.value;
 			// #endif
 
@@ -212,8 +214,25 @@ export default {
 	},
 	mounted() {
 		this.midButton && this.getMidButtonLeft();
+		// #ifdef WEB
+		this.handleResize = () => {
+		  this.midButton && this.getMidButtonLeft();
+		}
+		window.addEventListener('resize', this.handleResize);
+		// #endif
+	},
+	beforeDestroy() {
+		// #ifdef WEB
+		window.removeEventListener('resize', this.handleResize);
+		// #endif
 	},
 	methods: {
+		addUnit(value){
+			if (!isNaN(value)) {
+				return `${value}px`;
+			}
+			return value;
+		},
 		async clickHandler(index) {
 			if (this.beforeSwitch && typeof this.beforeSwitch === "function") {
 				// 执行回调，同时传入索引当作参数
@@ -238,20 +257,24 @@ export default {
 		},
 		// 切换tab
 		switchTab(index) {
-           
-			let pagePath = this.list[index].pagePath;
+			// 发出事件和修改v-model绑定的值
+			this.$emit("change", index);
 			// 如果有配置pagePath属性，使用uni.switchTab进行跳转
-			if (pagePath) {
-                if(pagePath == this.pageUrl || pagePath == "/" + this.pageUrl) return
-                // 发出事件和修改v-model绑定的值
-			    this.$emit("change", index);
-				// uni.switchTab({
-				// 	url: pagePath
-				// });
+			if (this.list[index].pagePath) {
+				let url = this.list[index].pagePath;
+				uni.switchTab({
+					url,
+					fail: (err) => {
+						if (err && err.errMsg && err.errMsg.indexOf("tabBar") > -1) {
+							uni.navigateTo({ url });
+						} else {
+							console.error(err);
+						}
+					}
+				});
 			} else {
 				// 如果配置了papgePath属性，将不会双向绑定v-model传入的value值
 				// 因为这个模式下，不再需要v-model绑定的value值了，而是通过getCurrentPages()适配
-                this.$emit("change", index);
 				this.$emit("input", index);
 				this.$emit("update:modelValue", index);
 			}
@@ -260,11 +283,11 @@ export default {
 		getOffsetRight(count, isDot) {
 			// 点类型，count大于9(两位数)，分别设置不同的right值，避免位置太挤
 			if (isDot) {
-				return -20;
+				return -10;
 			} else if (count > 9) {
-				return -40;
+				return -20;
 			} else {
-				return -30;
+				return -15;
 			}
 		},
 		// 获取凸起按钮外层元素的left值，让其水平居中
@@ -286,6 +309,11 @@ export default {
 }
 
 .u-tabbar {
+	/* #ifdef WEB */
+	a, button, view, text {
+		touch-action: manipulation; /* 禁用双击缩放，直接触发点击，解决Web端点击响应延迟的问题 */
+	}
+	/* #endif */
 	&__content {
 		@include vue-flex;
 		align-items: center;
@@ -301,9 +329,9 @@ export default {
 
 		&__circle__border {
 			border-radius: 100%;
-			width: 110rpx;
-			height: 110rpx;
-			top: -48rpx;
+			width: 55px;
+			height: 55px;
+			top: -24px;
 			position: absolute;
 			z-index: 4;
 			background-color: #ffffff;
@@ -321,7 +349,7 @@ export default {
 			flex: 1;
 			justify-content: center;
 			height: 100%;
-			padding: 12rpx 0;
+			padding: 6px 0;
 			@include vue-flex;
 			flex-direction: column;
 			align-items: center;
@@ -329,17 +357,18 @@ export default {
 
 			&__button {
 				position: absolute;
-				top: 14rpx;
+				top: 7px;
 				left: 50%;
 				transform: translateX(-50%);
+				@include vue-flex;
 			}
 
 			&__text {
 				color: $u-content-color;
-				font-size: 22rpx;
-				line-height: 28rpx;
+				font-size: 12px;
+				line-height: 14px;
 				position: absolute;
-				bottom: 14rpx;
+				bottom: 4px;
 				left: 50%;
 				transform: translateX(-50%);
 				width: 100%;
@@ -358,15 +387,15 @@ export default {
 			/* #endif */
 
 			&__button {
-				width: 90rpx;
-				height: 90rpx;
+				width: 45px;
+				height: 45px;
 				border-radius: 100%;
 				@include vue-flex;
 				justify-content: center;
 				align-items: center;
 				position: absolute;
 				background-color: #ffffff;
-				top: -40rpx;
+				top: -20px;
 				left: 50%;
 				z-index: 6;
 				transform: translateX(-50%);

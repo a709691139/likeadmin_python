@@ -116,8 +116,8 @@ export default {
 		},
 		displayValueCom() {
 			let str;
-			let { displayValue, nullVal } = this;
-			if (isNaN(displayValue)) {
+			let { displayValue, nullVal, endVal } = this;
+			if (isNaN(endVal)) {
 				str = nullVal;
 			} else {
 				str = displayValue;
@@ -239,7 +239,7 @@ export default {
 			}
 			return x1 + x2;
 		},
-		// #ifndef VUE3
+		// #ifdef VUE2
 		destroyed() {
 			this.cancelAnimationFrame(this.rAF);
 		},

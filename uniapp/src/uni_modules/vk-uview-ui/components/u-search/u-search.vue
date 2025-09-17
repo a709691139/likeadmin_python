@@ -38,9 +38,12 @@
 			<view class="u-close-wrap" v-if="keyword && clearabled && focused" @tap="clear">
 				<u-icon class="u-clear-icon" name="close-circle-fill" size="34" color="#c0c4cc"></u-icon>
 			</view>
+			<view class="u-close-wrap" v-else>
+
+			</view>
 		</view>
-		<view :style="[actionStyle]" class="u-action" 
-			:class="[showActionBtn || show ? 'u-action-active' : '']" 
+		<view :style="[actionStyle]" class="u-action"
+			:class="[showActionBtn || show ? 'u-action-active' : '']"
 			@tap.stop.prevent="custom"
 		>{{ actionText }}</view>
 	</view>
@@ -169,7 +172,7 @@ export default {
 		// 输入框最大能输入的长度，-1为不限制长度(来自uniapp文档)
 		maxlength: {
 			type: [Number, String],
-			default: '-1'
+			default: 1000
 		},
 		// 搜索图标的颜色，默认同输入框字体颜色
 		searchIconColor: {
@@ -225,10 +228,10 @@ export default {
 	},
 	computed: {
 		valueCom() {
-			// #ifndef VUE3
+			// #ifdef VUE2
 			return this.value;
 			// #endif
-		
+
 			// #ifdef VUE3
 			return this.modelValue;
 			// #endif

@@ -1,3 +1,16 @@
+/*
+##### 如果你热爱编程，想快速入门云开发，欢迎使用`vk-unicloud`系列开发框架
+##### 无需转变开发习惯，0成本上手云开发。
+##### 框架内置了众多API、工具包，为你的业务扫平障碍。使你的项目刚起步进度就是50%（微信登录、短信、验证码、缓存、生成小程序码等等）
+##### 从此你又get一个新技能，只需用js，轻松搞定前后台整体业务。
+##### `client端` 框架地址：https://ext.dcloud.net.cn/plugin?id=2204
+##### `admin端`  框架地址：https://ext.dcloud.net.cn/plugin?id=5043
+##### `client端` 框架文档：https://vkdoc.fsq.pub/client/
+##### `admin端`  框架文档：https://vkdoc.fsq.pub/admin/
+##### 框架学习Q群：`22466457` 欢迎萌新和大佬来使用和共同改进框架
+##### 如本插件有问题，也可加Q群反馈：22466457，只要是因本插件引起的问题，你在群里一定可以得到解决。
+*/
+
 // 引入全局mixin
 import mixin from './libs/mixin/mixin.js'
 // 引入关于是否mixin集成小程序分享的配置
@@ -68,7 +81,10 @@ import {sys, os} from './libs/function/sys.js'
 import debounce from './libs/function/debounce.js'
 // 节流方法
 import throttle from './libs/function/throttle.js'
-
+// 对象转字符串，或者字符串转对象
+import addStyle from './libs/function/addStyle.js'
+// getSystemInfoSync的优化版本（在微信小程序不会提示API已过期的警告）
+import getSystemInfoSync from './libs/function/getSystemInfoSync.js'
 
 // 配置信息
 import config from './libs/config/config.js'
@@ -111,6 +127,8 @@ const $u = {
 	zIndex,
 	debounce,
 	throttle,
+	addStyle,
+	getSystemInfoSync
 }
 
 // $u挂载到uni对象上
@@ -118,7 +136,7 @@ uni.$u = $u
 
 const install = Vue => {
 	Vue.mixin(mixin) 
-  // #ifndef VUE3
+  // #ifdef VUE2
 	if (Vue.prototype.openShare) {
 		Vue.mixin(mpShare);
 	}
@@ -136,6 +154,7 @@ const install = Vue => {
 	})
 	Vue.prototype.$u = $u
   // #endif
+	
   // #ifdef VUE3
   Vue.config.globalProperties.$u = $u
   // #endif

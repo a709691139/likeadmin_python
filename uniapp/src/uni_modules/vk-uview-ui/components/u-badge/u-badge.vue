@@ -1,12 +1,12 @@
 <template>
 	<view v-if="show" class="u-badge" :class="[
-			isDot ? 'u-badge-dot' : '', 
+			isDot ? 'u-badge-dot' : '',
 			size == 'mini' ? 'u-badge-mini' : '',
 			type ? 'u-badge--bg--' + type : ''
 		]" :style="[{
-			top: offset[0] + 'rpx',
-			right: offset[1] + 'rpx',
-			fontSize: fontSize + 'rpx',
+			top: offset[0] + 'px',
+			right: offset[1] + 'px',
+			fontSize: fontSize + 'px',
 			position: absolute ? 'absolute' : 'static',
 			color: color,
 			backgroundColor: bgColor
@@ -28,7 +28,7 @@
 	 * @property {String} type 使用预设的背景颜色（默认error）
 	 * @property {Boolean} show-zero 当数值为 0 时，是否展示 Badge（默认false）
 	 * @property {String} size Badge的尺寸，设为mini会得到小一号的Badge（默认default）
-	 * @property {Array} offset 设置badge的位置偏移，格式为 [x, y]，也即设置的为top和right的值，单位rpx。absolute为true时有效（默认[20, 20]）
+	 * @property {Array} offset 设置badge的位置偏移，格式为 [x, y]，也即设置的为top和right的值，单位px。absolute为true时有效（默认[20, 20]）
 	 * @property {String} color 字体颜色（默认#ffffff）
 	 * @property {String} bgColor 背景颜色，优先级比type高，如设置，type参数会失效
 	 * @property {Boolean} is-center 组件中心点是否和父组件右上角重合，优先级比offset高，如设置，offset参数会失效（默认false）
@@ -70,7 +70,7 @@
 			offset: {
 				type: Array,
 				default: () => {
-					return [20, 20]
+					return [10, 10]
 				}
 			},
 			// 是否开启绝对定位，开启了offset才会起作用
@@ -81,7 +81,7 @@
 			// 字体大小
 			fontSize: {
 				type: [String, Number],
-				default: '24'
+				default: '12'
 			},
 			// 字体演示
 			color: {
@@ -109,11 +109,11 @@
 					// Y轴-50%，意味着badge向上移动了badge自身高度一半，X轴50%，意味着向右移动了自身宽度一半
 					style.transform = "translateY(-50%) translateX(50%)";
 				} else {
-					style.top = this.offset[0] + 'rpx';
-					style.right = this.offset[1] + 'rpx';
+					style.top = this.offset[0] + 'px';
+					style.right = this.offset[1] + 'px';
 					style.transform = "translateY(0) translateX(0)";
 				}
-				// 如果尺寸为mini，后接上scal()
+				// 如果尺寸为mini，后接上scale()
 				if(this.size == 'mini') {
 					style.transform = style.transform + " scale(0.8)";
 				}
@@ -139,76 +139,76 @@
 
 <style lang="scss" scoped>
 	@import "../../libs/css/style.components.scss";
-	
+
 	.u-badge {
 		/* #ifndef APP-NVUE */
 		display: inline-flex;
 		/* #endif */
 		justify-content: center;
 		align-items: center;
-		line-height: 24rpx;
-		padding: 4rpx 8rpx;
-		border-radius: 100rpx;
+		line-height: 12px;
+		padding: 2px 4px;
+		border-radius: 50px;
 		z-index: 9;
-		
+
 		&--bg--primary {
 			background-color: $u-type-primary;
 		}
-		
+
 		&--bg--error {
 			background-color: $u-type-error;
 		}
-		
+
 		&--bg--success {
 			background-color: $u-type-success;
 		}
-		
+
 		&--bg--info {
 			background-color: $u-type-info;
 		}
-		
+
 		&--bg--warning {
 			background-color: $u-type-warning;
 		}
 	}
-	
+
 	.u-badge-dot {
-		height: 16rpx;
-		width: 16rpx;
-		border-radius: 100rpx;
+		height: 8px;
+		width: 8px;
+		border-radius: 50px;
 		line-height: 1;
 	}
-	
+
 	.u-badge-mini {
 		transform: scale(0.8);
 		transform-origin: center center;
 	}
-	
+
 	// .u-primary {
 	// 	background: $u-type-primary;
 	// 	color: #fff;
 	// }
-	
+
 	// .u-error {
 	// 	background: $u-type-error;
 	// 	color: #fff;
 	// }
-	
+
 	// .u-warning {
 	// 	background: $u-type-warning;
 	// 	color: #fff;
 	// }
-	
+
 	// .u-success {
 	// 	background: $u-type-success;
 	// 	color: #fff;
 	// }
-	
+
 	// .u-black {
 	// 	background: #585858;
 	// 	color: #fff;
 	// }
-	
+
 	.u-info {
 		background-color: $u-type-info;
 		color: #fff;

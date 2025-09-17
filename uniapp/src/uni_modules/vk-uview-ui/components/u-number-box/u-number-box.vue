@@ -243,7 +243,7 @@ export default {
 			return Number(uni.upx2px(this.cursorSpacing));
 		},
 		valueCom(){
-			// #ifndef VUE3
+			// #ifdef VUE2
 			return this.value;
 			// #endif
 

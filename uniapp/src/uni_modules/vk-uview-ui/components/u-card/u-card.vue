@@ -4,7 +4,8 @@
 		@tap.stop="click"
 		:class="{ 'u-border': border, 'u-card-full': full, 'u-card--border': borderRadius > 0 }"
 		:style="{
-			borderRadius: borderRadius + 'rpx',
+			'--radius': borderRadius + 'rpx',
+			'border-radius': borderRadius + 'rpx',
 			margin: margin,
 			boxShadow: boxShadow
 		}"
@@ -23,12 +24,12 @@
 					<image
 						:src="thumb"
 						class="u-card__head--left__thumb"
-						mode="aspectfull"
+						mode="aspectFill"
 						v-if="thumb"
-						:style="{ 
-							height: thumbWidth + 'rpx', 
-							width: thumbWidth + 'rpx', 
-							borderRadius: thumbCircle ? '100rpx' : '6rpx' 
+						:style="{
+							height: thumbWidth + 'rpx',
+							width: thumbWidth + 'rpx',
+							borderRadius: thumbCircle ? '100rpx' : '6rpx'
 						}"
 					></image>
 					<text
@@ -251,33 +252,33 @@ export default {
 
 <style lang="scss" scoped>
 @import "../../libs/css/style.components.scss";
-	
+
 .u-card {
 	position: relative;
 	overflow: hidden;
 	font-size: 28rpx;
 	background-color: #ffffff;
 	box-sizing: border-box;
-	
+
 	&-full {
 		// 如果是与屏幕之间不留空隙，应该设置左右边距为0
 		margin-left: 0 !important;
 		margin-right: 0 !important;
 		width: 100%;
 	}
-	
+
 	&--border:after {
-		border-radius: 16rpx;
+		border-radius: var(--radius,16rpx);
 	}
 
 	&__head {
 		&--left {
 			color: $u-main-color;
-			
+
 			&__thumb {
 				margin-right: 16rpx;
 			}
-			
+
 			&__title {
 				max-width: 400rpx;
 			}

@@ -21,7 +21,7 @@
 					></view>
 					<view v-if="mode === 'middleLine' && charArrLength <= index" :class="[breathe && charArrLength == index ? 'u-breathe' : '', charArrLength === index ? 'u-middle-line-active' : '']"
 					 class="u-middle-line" :style="{height: bold ? '4px' : '2px', background: charArrLength === index ? activeColor : inactiveColor}"></view>
-					<view v-if="mode === 'bottomLine'" :class="[breathe && charArrLength == index ? 'u-breathe' : '', charArrLength === index ? 'u-buttom-line-active' : '']"
+					<view v-if="mode === 'bottomLine'" :class="[breathe && charArrLength == index ? 'u-breathe' : '', charArrLength === index ? 'u-bottom-line-active' : '']"
 					 class="u-bottom-line" :style="{height: bold ? '4px' : '2px', background: charArrLength === index ? activeColor : inactiveColor}"></view>
 					<block v-if="!dotFill"> {{ charArr[index] ? charArr[index] : ''}}</block>
 					<block v-else>
@@ -130,7 +130,7 @@
 			// 	handler(val) {
 			// 		this.maxlength = Number(val);
 			// 	}
-			// }, 
+			// },
 			valueCom: {
 				immediate: true,
 				handler(val) {
@@ -148,10 +148,10 @@
 		},
 		computed: {
 			valueCom(){
-				// #ifndef VUE3
+				// #ifdef VUE2
 				return this.value;
 				// #endif
-				
+
 				// #ifdef VUE3
 				return this.modelValue;
 				// #endif
@@ -310,7 +310,7 @@
 		transform: translate(-50%, -50%);
 	}
 
-	.u-buttom-line-active {
+	.u-bottom-line-active {
 		background: $u-type-primary;
 	}
 

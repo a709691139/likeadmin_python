@@ -1,9 +1,11 @@
+import getSystemInfoSync from './getSystemInfoSync.js'
+
 export function os() {
-	return uni.getSystemInfoSync().platform;
+	return getSystemInfoSync().platform;
 };
 
 export function sys() {
-	return uni.getSystemInfoSync();
+	return getSystemInfoSync();
 }
 
 

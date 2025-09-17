@@ -20,11 +20,11 @@
     <slot v-else></slot>
     <view
       class="u-avatar__sex"
-      v-if="showSex"
+      v-if="showSex && sexIcon"
       :class="['u-avatar__sex--' + sexIcon]"
       :style="[uSexStyle]"
     >
-      <u-icon :name="sexIcon" size="20"></u-icon>
+      <u-icon v-if="sexIcon" :name="sexIcon" size="20"></u-icon>
     </view>
     <view class="u-avatar__level" v-if="showLevel" :style="[uLevelStyle]">
       <u-icon :name="levelIcon" size="20"></u-icon>
@@ -42,8 +42,15 @@ let base64Avatar =
  * @property {String} bg-color 背景颜色，一般显示文字时用（默认#ffffff）
  * @property {String} src 头像路径，如加载失败，将会显示默认头像
  * @property {String Number} size 头像尺寸，可以为指定字符串(large, default, mini)，或者数值，单位rpx（默认default）
+ *  @value large				大
+ * 	@value default 			常规
+ * 	@value mini 				小
  * @property {String} mode 显示类型，见上方说明（默认circle）
+ * 	@value circle			圆型
+ * 	@value square 		方型
  * @property {String} sex-icon 性别图标，man-男，woman-女（默认man）
+ * 	@value man				男
+ * 	@value woman 			女
  * @property {String} level-icon 等级图标（默认level）
  * @property {String} sex-bg-color 性别图标背景颜色
  * @property {String} level-bg-color 等级图标背景颜色
@@ -65,7 +72,7 @@ export default {
     },
     // 头像路径
     src: {
-      type: String,
+      type: [String, null],
       default: ""
     },
     // 尺寸，large-大，default-中等，mini-小，如果为数值，则单位为rpx
@@ -96,7 +103,7 @@ export default {
     },
     // 右上角性别角标，man-男，woman-女
     sexIcon: {
-      type: String,
+      type: [String, null],
       default: "man"
     },
     // 右下角的等级图标

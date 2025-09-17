@@ -1,6 +1,6 @@
 <template>
 	<u-popup :blur="blur" closeable :maskCloseAble="maskCloseAble" mode="bottom" :popup="false" v-model="popupValue" length="auto"
-	 :safeAreaInsetBottom="safeAreaInsetBottom" @close="close" :z-index="uZIndex" :border-radius="borderRadius" :closeable="closeable">
+		:safeAreaInsetBottom="safeAreaInsetBottom" @close="close" :z-index="uZIndex" :border-radius="borderRadius" :closeable="closeable">
 		<view class="u-calendar">
 			<view class="u-calendar__header">
 				<view class="u-calendar__header__text" v-if="!$slots['tooltip']">
@@ -48,10 +48,10 @@
 			<view class="u-calendar__bottom">
 				<view class="u-calendar__bottom__choose">
 					<text>{{mode == 'date' ? activeDate : startDate}}</text>
-					<text v-if="endDate">至{{endDate}}</text>
+					<text v-if="endDate">{{toText}}{{endDate}}</text>
 				</view>
 				<view class="u-calendar__bottom__btn">
-					<u-button :type="btnType" shape="circle" size="default" @click="btnFix(false)">确定</u-button>
+					<u-button :type="btnType" shape="circle" size="default" @click="btnFix(false)" :disabled="mode == 'range' && !endDate">{{ confirmText }}</u-button>
 				</view>
 			</view>
 		</view>
@@ -61,15 +61,15 @@
 	/**
 	 * calendar 日历
 	 * @description 此组件用于单个选择日期，范围选择日期等，日历被包裹在底部弹起的容器中。
-	 * @tutorial http://uviewui.com/components/calendar.html
+	 * @tutorial https://vkuviewdoc.fsq.pub/components/calendar.html
 	 * @property {String} mode 选择日期的模式，date-为单个日期，range-为选择日期范围
 	 * @property {Boolean} v-model 布尔值变量，用于控制日历的弹出与收起
 	 * @property {Boolean} safe-area-inset-bottom 是否开启底部安全区适配(默认false)
 	 * @property {Boolean} change-year 是否显示顶部的切换年份方向的按钮(默认true)
 	 * @property {Boolean} change-month 是否显示顶部的切换月份方向的按钮(默认true)
 	 * @property {String Number} max-year 可切换的最大年份(默认2050)
-	 * @property {String Number} min-year 最小可选日期(默认1950)
-	 * @property {String Number} min-date 可切换的最小年份(默认1950-01-01)
+	 * @property {String Number} min-year 可切换的最小年份(默认1950)
+	 * @property {String Number} min-date 最小可选日期(默认1950-01-01)
 	 * @property {String Number} max-date 最大可选日期(默认当前日期)
 	 * @property {String Number} 弹窗顶部左右两边的圆角值，单位rpx(默认20)
 	 * @property {Boolean} mask-close-able 是否允许通过点击遮罩关闭日历(默认true)
@@ -88,20 +88,20 @@
 	 * @property {Boolean} closeable 是否显示右上角的关闭图标(默认true)
 	 * @example <u-calendar v-model="show" :mode="mode"></u-calendar>
 	 */
-	
+
 	export default {
 		name: 'u-calendar',
-    emits: ["update:modelValue", "input", "change"],
+		emits: ["update:modelValue", "input", "change"],
 		props: {
-      // 通过双向绑定控制组件的弹出与收起
-      value: {
-      	type: Boolean,
-      	default: false
-      },
-      modelValue: {
-        type: Boolean,
-        default: false
-      },
+			// 通过双向绑定控制组件的弹出与收起
+			value: {
+				type: Boolean,
+				default: false
+			},
+			modelValue: {
+				type: Boolean,
+				default: false
+			},
 			safeAreaInsetBottom: {
 				type: Boolean,
 				default: false
@@ -189,7 +189,7 @@
 			rangeBgColor: {
 				type: String,
 				default: 'rgba(41,121,255,0.13)'
-			}, 
+			},
 			// 范围内日期字体颜色
 			rangeColor: {
 				type: String,
@@ -235,15 +235,31 @@
 				type: [Number, String],
 				default: 0
 			},
+			confirmText: {
+				type: String,
+				default: '确定'
+			},
+			toText: {
+				type: String,
+				default: '至'
+			},
+			yearText: {
+				type: String,
+				default: '年'
+			},
+			monthText: {
+				type: String,
+				default: '月'
+			},
 		},
 		data() {
 			return {
-        popupValue:false,
+				popupValue:false,
 				// 星期几,值为1-7
-				weekday: 1, 
+				weekday: 1,
 				weekdayArr:[],
 				// 当前月有多少天
-				days: 0, 
+				days: 0,
 				daysArr:[],
 				showTitle: '',
 				year: 2020,
@@ -267,10 +283,10 @@
 		},
 		computed: {
 			valueCom() {
-				// #ifndef VUE3
+				// #ifdef VUE2
 				return this.value;
 				// #endif
-			
+
 				// #ifdef VUE3
 				return this.modelValue;
 				// #endif
@@ -287,9 +303,12 @@
 			dataChange(val) {
 				this.init()
 			},
-      valueCom(v1, v2) {
-        this.popupValue = v1;
-      }
+			valueCom:{
+				immediate: true,
+				handler(val){
+					this.popupValue = val;
+				}
+			}
 		},
 		created() {
 			this.init()
@@ -408,7 +427,7 @@
 				this.daysArr=this.generateArray(1,this.days)
 				this.weekday = this.getWeekday(this.year, this.month);
 				this.weekdayArr=this.generateArray(1,this.weekday)
-				this.showTitle = `${this.year}年${this.month}月`;
+				this.showTitle = `${this.year}${this.yearText}${this.month}${this.monthText}`;
 				if (this.isChange && this.mode == 'date') {
 					this.btnFix(true);
 				}
@@ -446,7 +465,7 @@
 			close() {
 				// 修改通过v-model绑定的父组件变量的值为false，从而隐藏日历弹窗
 				this.$emit('input', false);
-        this.$emit("update:modelValue", false);
+				this.$emit("update:modelValue", false);
 			},
 			getWeekText(date) {
 				date = new Date(`${date.replace(/\-/g, '/')} 00:00:00`);
@@ -512,17 +531,17 @@
 
 <style scoped lang="scss">
 	@import "../../libs/css/style.components.scss";
-	
+
 	.u-calendar {
 		color: $u-content-color;
-		
+
 		&__header {
 			width: 100%;
 			box-sizing: border-box;
 			font-size: 30rpx;
 			background-color: #fff;
 			color: $u-main-color;
-			
+
 			&__text {
 				margin-top: 30rpx;
 				padding: 0 60rpx;
@@ -531,14 +550,14 @@
 				align-items: center;
 			}
 		}
-		
+
 		&__action {
 			padding: 40rpx 0 40rpx 0;
-			
+
 			&__icon {
 				margin: 0 16rpx;
 			}
-			
+
 			&__text {
 				padding: 0 16rpx;
 				color: $u-main-color;
@@ -547,20 +566,20 @@
 				font-weight: bold;
 			}
 		}
-	
+
 		&__week-day {
 			@include vue-flex;
 			align-items: center;
 			justify-content: center;
 			padding: 6px 0;
 			overflow: hidden;
-			
+
 			&__text {
 				flex: 1;
 				text-align: center;
 			}
 		}
-	
+
 		&__content {
 			width: 100%;
 			@include vue-flex;
@@ -569,17 +588,17 @@
 			box-sizing: border-box;
 			background-color: #fff;
 			position: relative;
-			
+
 			&--end-date {
 				border-top-right-radius: 8rpx;
 				border-bottom-right-radius: 8rpx;
 			}
-			
+
 			&--start-date {
 				border-top-left-radius: 8rpx;
 				border-bottom-left-radius: 8rpx;
 			}
-			
+
 			&__item {
 				width: 14.2857%;
 				@include vue-flex;
@@ -589,7 +608,7 @@
 				overflow: hidden;
 				position: relative;
 				z-index: 2;
-				
+
 				&__inner {
 					height: 84rpx;
 					@include vue-flex;
@@ -599,7 +618,7 @@
 					font-size: 32rpx;
 					position: relative;
 					border-radius: 50%;
-					
+
 					&__desc {
 						width: 100%;
 						font-size: 24rpx;
@@ -612,7 +631,7 @@
 						bottom: 2rpx;
 					}
 				}
-				
+
 				&__tips {
 					width: 100%;
 					font-size: 24rpx;
@@ -626,7 +645,7 @@
 					z-index: 2;
 				}
 			}
-			
+
 			&__bg-month {
 				position: absolute;
 				font-size: 130px;
@@ -638,7 +657,7 @@
 				z-index: 1;
 			}
 		}
-	
+
 		&__bottom {
 			width: 100%;
 			@include vue-flex;
@@ -650,11 +669,11 @@
 			box-sizing: border-box;
 			font-size: 24rpx;
 			color: $u-tips-color;
-			
+
 			&__choose {
 				height: 50rpx;
 			}
-			
+
 			&__btn {
 				width: 100%;
 			}

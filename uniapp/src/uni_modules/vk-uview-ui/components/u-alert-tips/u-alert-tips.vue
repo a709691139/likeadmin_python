@@ -10,9 +10,9 @@
 		<view class="u-icon-wrap">
 			<u-icon v-if="showIcon" :name="uIcon" :size="description ? 40 : 32" class="u-icon" :color="uIconType" :custom-style="iconStyle"></u-icon>
 		</view>
-		<view class="u-alert-content" @tap.stop="click">
+		<view class="u-alert-content" @click.stop="click">
 			<view class="u-alert-title" :style="[uTitleStyle]">
-				{{title}}
+				<slot>{{title}}</slot>
 			</view>
 			<view v-if="description" class="u-alert-desc" :style="[descStyle]">
 				{{description}}
@@ -24,7 +24,7 @@
 				top: description ? '18rpx' : '24rpx'
 			}"></u-icon>
 		</view>
-		<text v-if="closeAble && closeText" class="u-close-text" :style="{
+		<text @click="close" v-if="closeAble && closeText" class="u-close-text" :style="{
 			top: description ? '18rpx' : '24rpx'
 		}">{{closeText}}</text>
 	</view>
@@ -253,5 +253,8 @@
 		top: 20rpx;
 		right: 20rpx;
 		line-height: 1;
+	}
+	.u-alert-content {
+		width: 100%;
 	}
 </style>

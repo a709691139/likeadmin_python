@@ -1,7 +1,8 @@
 <template>
 	<view class="u-checkbox" :style="[checkboxStyle]">
 		<view class="u-checkbox__icon-wrap" @tap="toggle" :class="[iconClass]" :style="[iconStyle]">
-			<u-icon class="u-checkbox__icon-wrap__icon" name="checkbox-mark" :size="checkboxIconSize" :color="iconColor" />
+			<u-icon v-if="indeterminate" class="u-checkbox__icon-wrap__icon" name="minus" :size="checkboxIconSize" :color="iconColor" />
+			<u-icon v-else class="u-checkbox__icon-wrap__icon" name="checkbox-mark" :size="checkboxIconSize" :color="iconColor" />
 		</view>
 		<view
 			class="u-checkbox__label"
@@ -82,12 +83,18 @@ export default {
 		size: {
 			type: [String, Number],
 			default: ""
+		},
+		// 设置不确定状态，仅负责样式控制
+		indeterminate: {
+			type: Boolean,
+			default: false
 		}
 	},
 	data() {
 		return {
 			parentDisabled: false,
-			newParams: {}
+			newParams: {},
+			parent: null
 		};
 	},
 	created() {
@@ -98,7 +105,7 @@ export default {
 	},
 	computed: {
 		valueCom() {
-			// #ifndef VUE3
+			// #ifdef VUE2
 			return this.value;
 			// #endif
 
@@ -143,6 +150,7 @@ export default {
 		},
 		// checkbox内部的勾选图标，如果选中状态，为白色，否则为透明色即可
 		iconColor() {
+			if (this.indeterminate) return '#ffffff';
 			return this.valueCom ? "#ffffff" : "transparent";
 		},
 		iconClass() {
@@ -151,6 +159,7 @@ export default {
 			if (this.valueCom == true) classes.push("u-checkbox__icon-wrap--checked");
 			if (this.isDisabled) classes.push("u-checkbox__icon-wrap--disabled");
 			if (this.valueCom && this.isDisabled) classes.push("u-checkbox__icon-wrap--disabled--checked");
+			if (this.indeterminate === true) classes.push('u-checkbox__icon-wrap--indeterminate')
 			// 支付宝小程序无法动态绑定一个数组类名，否则解析出来的结果会带有","，而导致失效
 			return classes.join(" ");
 		},
@@ -195,7 +204,7 @@ export default {
 				name: this.name
 			};
 			// 执行父组件u-checkbox-group的事件方法
-			if (this.parent && this.parent.emitEvent) this.parent._emitEvent(obj);
+			if (this.parent && this.parent.emitEvent) this.parent.emitEvent(obj);
 		},
 		onClickLabel() {
 			if (!this.isLabelDisabled && !this.isDisabled) {
@@ -219,6 +228,7 @@ export default {
 		// 设置input的值，这里通过input事件，设置通过v-model绑定的组件的值
 		setValue() {
 			let value = this.valueCom;
+
 			// 判断是否超过了可选的最大数量
 			let checkedNum = 0;
 			if (this.parent && this.parent.children) {
@@ -304,6 +314,12 @@ export default {
 
 		&--disabled--checked {
 			color: #c8c9cc !important;
+		}
+
+		&--indeterminate {
+			color: #fff;
+			background-color: $u-type-primary;
+			border-color: $u-type-primary;
 		}
 	}
 

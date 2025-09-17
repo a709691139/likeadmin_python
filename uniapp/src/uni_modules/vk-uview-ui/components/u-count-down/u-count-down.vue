@@ -158,7 +158,7 @@ export default {
 			this.timer = null;
 		}
 	},
-	// #ifndef VUE3
+	// #ifdef VUE2
 	beforeDestroy() {
 		this.clearTimeout();
 	},

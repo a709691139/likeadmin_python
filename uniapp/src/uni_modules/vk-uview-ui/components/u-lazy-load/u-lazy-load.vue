@@ -190,7 +190,7 @@
 				observer && observer.disconnect();
 			},
 		},
-    // #ifndef VUE3
+    // #ifdef VUE2
     // 组件销毁前，将实例从u-form的缓存中移除
     beforeDestroy() {
       // 销毁页面时，可能还没触发某张很底部的懒加载图片，所以把这个事件给去掉

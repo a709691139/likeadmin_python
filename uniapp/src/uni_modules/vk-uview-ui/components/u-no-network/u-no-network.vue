@@ -19,6 +19,7 @@
 </template>
 
 <script>
+	import getSystemInfoSync from '../../libs/function/getSystemInfoSync.js'
 	/**
 	 * noNetwork 无网络提示
 	 * @description 该组件无需任何配置，引入即可，内部自动处理所有功能和事件。
@@ -60,7 +61,7 @@
 			}
 		},
 		mounted() {
-			this.isIOS = (uni.getSystemInfoSync().platform === 'ios');
+			this.isIOS = (getSystemInfoSync().platform === 'ios');
 			uni.onNetworkStatusChange((res) => {
 				this.isConnected = res.isConnected;
 				this.networkType = res.networkType;

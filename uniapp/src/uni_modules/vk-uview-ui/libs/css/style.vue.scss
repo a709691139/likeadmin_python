@@ -60,9 +60,9 @@ page {
 
 .u-line-2, .u-line-3, .u-line-4, .u-line-5 {
     overflow: hidden;
-	word-break: break-all;
+    word-break: break-all;
     text-overflow: ellipsis; 
-    display: -webkit-box; // 弹性伸缩盒
+    display: -webkit-box !important; // 弹性伸缩盒
     -webkit-box-orient: vertical; // 设置伸缩盒子元素排列方式
 }
 

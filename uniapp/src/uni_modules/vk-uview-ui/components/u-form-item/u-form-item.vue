@@ -1,5 +1,5 @@
 <template>
-	<view class="u-form-item" :class="{'u-border-bottom': elBorderBottom, 'u-form-item__border-bottom--error': validateState === 'error' && showError('border-bottom')}">
+	<view class="u-form-item" :class="{'u-border-bottom': elBorderBottom, 'u-form-item__border-bottom--error': validateState === 'error' && showError('border-bottom')}" @click="onClick">
 		<view class="u-form-item__body" :style="{
 			flexDirection: elLabelPosition == 'left' ? 'row' : 'column'
 		}">
@@ -13,12 +13,12 @@
 				<view class="u-form-item--left__content" v-if="required || leftIcon || label">
 					<!-- nvue不支持伪元素before -->
 					<text v-if="required" class="u-form-item--left__content--required">*</text>
-					<view class="u-form-item--left__content__icon" v-if="leftIcon">
+					<view class="u-form-item--left__content__icon" v-if="leftIcon" @click.stop="onLeftClick">
 						<u-icon :name="leftIcon" :custom-style="leftIconStyle"></u-icon>
 					</view>
 					<view class="u-form-item--left__content__label" :style="[elLabelStyle, {
 						'justify-content': elLabelAlign == 'left' ? 'flex-start' : elLabelAlign == 'center' ? 'center' : 'flex-end'
-					}]">
+					}]" @click="onLabelClick">
 						{{label}}
 					</view>
 				</view>
@@ -28,7 +28,7 @@
 					<view class="u-form-item--right__content__slot" :style="elLabelPosition == 'left' && elInputAlign == 'right' ? 'text-align:right;display: inline-block;line-height:initial;' : ''">
 						<slot />
 					</view>
-					<view class="u-form-item--right__content__icon u-flex" v-if="$slots.right || rightIcon">
+					<view class="u-form-item--right__content__icon u-flex" v-if="$slots.right || rightIcon" @click.stop="onRightClick">
 						<u-icon :custom-style="rightIconStyle" v-if="rightIcon" :name="rightIcon"></u-icon>
 						<slot name="right" />
 					</view>
@@ -51,11 +51,13 @@
 	/**
 	 * form-item 表单item
 	 * @description 此组件一般用于表单场景，可以配置Input输入框，Select弹出框，进行表单验证等。
-	 * @tutorial http://uviewui.com/components/form.html
+	 * @tutorial https://vkuviewdoc.fsq.pub/components/form.html
 	 * @property {String} label 左侧提示文字
 	 * @property {Object} prop 表单域model对象的属性名，在使用 validate、resetFields 方法的情况下，该属性是必填的
 	 * @property {Boolean} border-bottom 是否显示表单域的下划线边框
 	 * @property {String} label-position 表单域提示文字的位置，left-左侧，top-上方
+	 * 	@value left				左侧
+	 * 	@value top 				上方
 	 * @property {String Number} label-width 提示文字的宽度，单位rpx（默认90）
 	 * @property {Object} label-style lable的样式，对象形式
 	 * @property {String} label-align lable的对齐方式
@@ -69,6 +71,7 @@
 
 	export default {
 		name: 'u-form-item',
+		emits: ['click','labelClick','rightClick','leftClick'],
 		mixins: [Emitter],
 		inject: {
 			uForm: {
@@ -218,7 +221,7 @@
 			// label的下划线
 			elBorderBottom() {
 				// 子组件的borderBottom默认为空字符串，如果不等于空字符串，意味着子组件设置了值，优先使用子组件的值
-				return this.borderBottom !== '' ? this.borderBottom : this.parentData.borderBottom ? this.parentData.borderBottom :
+				return this.borderBottom !== '' ? this.borderBottom : typeof this.parentData.borderBottom === "boolean" ? this.parentData.borderBottom :
 					true;
 			},
 			elInputAlign() {
@@ -226,6 +229,22 @@
 			},
 		},
 		methods: {
+			// 点击事件
+			onClick(){
+				this.$emit('click');
+			},
+			// label点击事件
+			onLabelClick(){
+				this.$emit('labelClick');
+			},
+			// 右侧图标点击事件
+			onRightClick(){
+				this.$emit('rightClick');
+			},
+			// 左侧图标点击事件
+			onLeftClick(){
+				this.$emit('leftClick');
+			},
 			broadcastInputError() {
 				// 子组件发出事件，第三个参数为true或者false，true代表有错误
 				this.broadcast('u-input', 'onFormItemError', this.validateState === 'error' && this.showError('border'));
@@ -242,14 +261,18 @@
 				// 		return rule.required;
 				// 	});
 				// }
-				// #ifndef VUE3
+				// #ifdef VUE2
 				// blur事件
 				this.$on('onFieldBlur', that.onFieldBlur);
 				// change事件
 				this.$on('onFieldChange', that.onFieldChange);
 				// #endif
-				// #ifdef VUE3
 
+				// #ifdef VUE3
+				// blur事件
+				uni.$on('onFieldBlur', that.onFieldBlur);
+				// change事件
+				uni.$on('onFieldChange', that.onFieldChange);
 				// #endif
 			},
 
@@ -332,6 +355,9 @@
 				// 检验之间，先获取需要校验的值
 				//this.fieldValue = this.parent.model[this.prop];
 				// 修改支持a.b
+				if (!this.parent || !this.parent.model) {
+					return callback('');
+				}
 				this.fieldValue = this.getData(this.parent.model,this.prop);
 				// blur和change是否有当前方式的校验规则
 				let rules = this.getFilteredRule(trigger);
@@ -397,7 +423,7 @@
 				}
 			}
 		},
-		// #ifndef VUE3
+		// #ifdef VUE2
 		// 组件销毁前，将实例从u-form的缓存中移除
 		beforeDestroy() {
 			// 如果当前没有prop的话表示当前不要进行删除（因为没有注入）
@@ -429,7 +455,7 @@
 	.u-form-item {
 		@include vue-flex;
 		// align-items: flex-start;
-		padding: 15rpx 0;
+		padding: 20rpx 0;
 		font-size: 28rpx;
 		color: $u-main-color;
 		box-sizing: border-box;
@@ -485,8 +511,10 @@
 
 				&__slot {
 					flex: 1;
+					/* #ifndef MP */
 					@include vue-flex;
 					align-items: center;
+					/* #endif */
 				}
 
 				&__icon {

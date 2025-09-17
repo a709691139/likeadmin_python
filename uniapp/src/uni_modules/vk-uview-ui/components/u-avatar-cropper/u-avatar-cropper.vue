@@ -39,6 +39,7 @@
 
 <script>
 import WeCropper from './weCropper.js';
+import getSystemInfoSync from '../../libs/function/getSystemInfoSync.js'
 export default {
 	props: {
 		// 裁剪矩形框的样式，其中可包含的属性为lineWidth-边框宽度(单位rpx)，color: 边框颜色，
@@ -123,7 +124,10 @@ export default {
 		};
 	},
 	onLoad(option) {
-		let rectInfo = uni.getSystemInfoSync();
+		let rectInfo = getSystemInfoSync();
+		if (rectInfo.safeAreaInsets && rectInfo.safeAreaInsets.bottom) {
+			this.bottomNavHeight += rectInfo.safeAreaInsets.bottom;
+		}
 		this.width = rectInfo.windowWidth;
 		this.height = rectInfo.windowHeight - this.bottomNavHeight;
 		this.cropperOpt.width = this.width;
@@ -167,8 +171,10 @@ export default {
 			sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
 			success: res => {
 				this.src = res.tempFilePaths[0];
-				//  获取裁剪图片资源后，给data添加src属性及其值
-				this.cropper.pushOrign(this.src);
+				this.pushOrign(this.src);
+			},
+			fail: (err) => {
+				console.error('chooseImageErr: ', err);
 			}
 		});
 	},
@@ -215,15 +221,25 @@ export default {
 			const self = this;
 			uni.chooseImage({
 				count: 1, // 默认9
-				sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+				sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
 				sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
 				success: (res) => {
 					self.src = res.tempFilePaths[0];
-					//  获取裁剪图片资源后，给data添加src属性及其值
-
-					self.cropper.pushOrign(this.src);
+					self.pushOrign(self.src);
 				}
 			});
+		},
+		pushOrign(src) {
+			// #ifdef MP-HARMONY
+			uni.$emit('uAvatarCropper', src);
+			this.$u.route({
+				type: 'back'
+			});
+			// #endif
+			// #ifndef MP-HARMONY
+			// 获取裁剪图片资源后，给data添加src属性及其值
+			this.cropper.pushOrign(src);
+			// #endif
 		}
 	}
 };
@@ -248,6 +264,12 @@ export default {
 .cropper-buttons {
 	background-color: #000000;
 	color: #eee;
+}
+
+.safe-area-padding {
+	padding-bottom: 0;
+	padding-bottom: constant(safe-area-inset-bottom);
+	padding-bottom: env(safe-area-inset-bottom);
 }
 
 .cropper-wrapper {

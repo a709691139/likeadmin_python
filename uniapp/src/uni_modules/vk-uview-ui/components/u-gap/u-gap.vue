@@ -40,9 +40,9 @@ export default {
 		gapStyle() {
 			return {
 				backgroundColor: this.bgColor,
-				height: this.height + 'rpx',
-				marginTop: this.marginTop + 'rpx',
-				marginBottom: this.marginBottom + 'rpx'
+				height: isNaN(this.height) ? this.height : this.height + 'rpx',
+				marginTop: isNaN(this.marginTop) ? this.marginTop : this.marginTop + 'rpx',
+				marginBottom: isNaN(this.marginBottom) ? this.marginBottom : this.marginBottom + 'rpx'
 			};
 		}
 	}

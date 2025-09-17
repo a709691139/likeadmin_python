@@ -143,17 +143,17 @@
 				observer && observer.disconnect();
 			},
 		},
-    // #ifndef VUE3
-    beforeDestroy() {
-      this.disconnectObserver('contentObserver');
-    },
-    // #endif
-    
-    // #ifdef VUE3
-    beforeUnmount() {
-      this.disconnectObserver('contentObserver');
-    },
-    // #endif
+		// #ifdef VUE2
+		beforeDestroy() {
+			this.disconnectObserver('contentObserver');
+		},
+		// #endif
+		
+		// #ifdef VUE3
+		beforeUnmount() {
+			this.disconnectObserver('contentObserver');
+		},
+		// #endif
 	};
 </script>
 

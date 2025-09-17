@@ -145,21 +145,21 @@
 			}
 		},
 		// 组件销毁的时候，清除定时器，否则定时器会继续存在，系统不会自动清除
-    // #ifndef VUE3
-    beforeDestroy() {
-      this.setTimeToStorage();
-      clearTimeout(this.timer);
-      this.timer = null;
-    },
-    // #endif
-    
-    // #ifdef VUE3
-    beforeUnmount() {
-      this.setTimeToStorage();
-      clearTimeout(this.timer);
-      this.timer = null;
-    },
-    // #endif
+		// #ifdef VUE2
+		beforeDestroy() {
+			this.setTimeToStorage();
+			clearTimeout(this.timer);
+			this.timer = null;
+		},
+		// #endif
+		
+		// #ifdef VUE3
+		beforeUnmount() {
+			this.setTimeToStorage();
+			clearTimeout(this.timer);
+			this.timer = null;
+		},
+		// #endif
 	}
 </script>
 

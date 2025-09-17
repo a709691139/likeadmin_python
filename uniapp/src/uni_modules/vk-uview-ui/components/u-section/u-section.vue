@@ -44,6 +44,7 @@
 	 * @example <u-section title="今日热门" :right="false"></u-section>
 	 */
 	export default {
+		emits: ["click"],
 		name: "u-section",
 		props: {
 			// 标题信息

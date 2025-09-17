@@ -40,6 +40,7 @@
 </template>
 
 <script>
+	import getSystemInfoSync from '../../libs/function/getSystemInfoSync.js'
 	/**
 	 * skeleton 骨架屏
 	 * @description 骨架屏一般用于页面在请求远程数据尚未完成时，页面用灰色块预显示本来的页面结构，给用户更好的体验。
@@ -162,7 +163,7 @@
 		// 组件被挂载
 		mounted() {
 			// 获取系统信息
-			let systemInfo = uni.getSystemInfoSync();
+			let systemInfo = getSystemInfoSync();
 			this.windowHeight = systemInfo.windowHeight;
 			this.windowWinth = systemInfo.windowWidth;
 			this.selecterQueryInfo();

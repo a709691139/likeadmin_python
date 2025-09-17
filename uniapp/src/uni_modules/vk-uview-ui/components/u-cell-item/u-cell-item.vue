@@ -31,7 +31,7 @@
 			</view>
 		</view>
 
-		<view class="u-cell__value" :style="[valueStyle]">
+		<view class="u-cell__value" :style="[valueStyle || {}]">
 			<block class="u-cell__value" v-if="value !== ''">{{ value }}</block>
 			<slot v-else></slot>
 		</view>
@@ -147,7 +147,7 @@ export default {
 		},
 		// 右侧显示内容的样式
 		valueStyle: {
-			type: Object,
+			type: [Object, null],
 			default() {
 				return {};
 			}
@@ -250,7 +250,7 @@ export default {
 }
 
 .u-cell-border:after {
-	position: absolute; 
+	position: absolute;
 	/* #ifndef APP-NVUE */
 	box-sizing: border-box;
 	content: ' ';

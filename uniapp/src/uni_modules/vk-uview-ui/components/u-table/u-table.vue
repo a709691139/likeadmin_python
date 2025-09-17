@@ -54,6 +54,13 @@
 					return {}
 				}
 			},
+			// td的自定义样式
+			tdStyle: {
+				type: Object,
+				default () {
+					return {}
+				}
+			},
 			// table的背景颜色
 			bgColor: {
 				type: String,
@@ -77,7 +84,7 @@
 
 <style lang="scss" scoped>
 	@import "../../libs/css/style.components.scss";
-	
+
 	.u-table {
 		width: 100%;
 		box-sizing: border-box;

@@ -5,7 +5,7 @@
 		<!-- $u.getRect()对组件根节点无效，因为写了.in(this)，故这里获取内层接点尺寸 -->
 		<view :id="id">
 			<scroll-view scroll-x class="u-scroll-view" :scroll-left="scrollLeft" scroll-with-animation>
-				<view class="u-scroll-box" :class="{'u-tabs-scorll-flex': !isScroll}">
+				<view class="u-scroll-box" :id="id" :class="{'u-tabs-scroll-flex': !isScroll}">
 					<view class="u-tab-item u-line-1" :id="'u-tab-item-' + index" v-for="(item, index) in list" :key="index" @tap="clickTab(index)"
 					 :style="[tabItemStyle(index)]">
 						<u-badge :count="item[count] || item['count'] || 0" :offset="offset" size="mini"></u-badge>
@@ -214,10 +214,10 @@
 		},
 		computed: {
 			valueCom() {
-				// #ifndef VUE3
+				// #ifdef VUE2
 				return this.value;
 				// #endif
-			
+
 				// #ifdef VUE3
 				return this.modelValue;
 				// #endif
@@ -337,8 +337,7 @@
 <style lang="scss" scoped>
 	@import "../../libs/css/style.components.scss";
 
-	view,
-	scroll-view {
+	.u-tabs {
 		box-sizing: border-box;
 	}
 
@@ -376,6 +375,7 @@
 		width: 100%;
 		white-space: nowrap;
 		position: relative;
+		box-sizing: border-box;
 	}
 
 	.u-tab-item {
@@ -392,7 +392,7 @@
 		bottom: 0;
 	}
 
-	.u-tabs-scorll-flex {
+	.u-tabs-scroll-flex {
 		@include vue-flex;
 		justify-content: space-between;
 	}

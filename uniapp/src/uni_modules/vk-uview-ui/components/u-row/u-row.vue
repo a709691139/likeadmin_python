@@ -21,6 +21,7 @@
 	 */
 	export default {
 		name: "u-row",
+		emits: ["click"],
 		props: {
 			// 给col添加间距，左右边距各占一半
 			gutter: {
@@ -57,7 +58,7 @@
 		},
 		methods: {
 			click(e) {
-				this.$emit('click');
+				this.$emit('click',e);
 			}
 		}
 	}

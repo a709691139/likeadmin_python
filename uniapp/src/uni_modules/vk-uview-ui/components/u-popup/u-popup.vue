@@ -1,6 +1,7 @@
 <template>
 	<view v-if="visibleSync" :style="[customStyle, {
-		zIndex: uZindex - 1
+		zIndex: uZindex - 1,
+		'--bgcolor': backgroundColor,
 	}]" class="u-drawer" hover-stop-propagation>
 		<u-mask :blur="blur" :duration="duration" :custom-style="maskCustomStyle" :maskClickAble="maskCloseAble" :z-index="uZindex - 2" :show="showDrawer && mask" @click="maskClick"></u-mask>
 		<!-- 移除	@tap.stop.prevent -->
@@ -51,6 +52,11 @@
  * @description 弹出层容器，用于展示弹窗、信息提示等内容，支持上、下、左、右和中部弹出。组件只提供容器，内部内容由用户自定义
  * @tutorial https://www.uviewui.com/components/popup.html
  * @property {String} mode 弹出方向（默认left）
+ * 	@value left       左侧弹出
+ *  @value top        顶部弹出
+ * 	@value right      右侧弹出
+ * 	@value bottom     底部弹出
+ * 	@value center     中间弹出
  * @property {Boolean} mask 是否显示遮罩（默认true）
  * @property {Stringr | Number} length mode=left | 见官网说明（默认auto）
  * @property {Boolean} zoom 是否开启缩放动画，只在mode为center时有效（默认true）
@@ -71,16 +77,16 @@
  */
 export default {
 	name: 'u-popup',
-  emits: ["update:modelValue", "input", "open", "close"],
+	emits: ["update:modelValue", "input", "open", "close"],
 	props: {
-    value: {
-    	type: Boolean,
-    	default: false
-    },
-    modelValue: {
-    	type: Boolean,
-    	default: false
-    },
+		value: {
+			type: Boolean,
+			default: false
+		},
+		modelValue: {
+			type: Boolean,
+			default: false
+		},
 		/**
 		 * 显示状态
 		 */
@@ -204,7 +210,10 @@ export default {
 			type: [String, Number],
 			default: 0
 		},
-		
+		backgroundColor: {
+			type: String,
+			default: '#ffffff'
+		}
 	},
 	data() {
 		return {
@@ -216,10 +225,10 @@ export default {
 	},
 	computed: {
 		valueCom(){
-			// #ifndef VUE3
+			// #ifdef VUE2
 			return this.value;
 			// #endif
-			
+
 			// #ifdef VUE3
 			return this.modelValue;
 			// #endif
@@ -286,20 +295,24 @@ export default {
 		}
 	},
 	watch: {
-		valueCom(val) {
-			if (val) {
-				this.open();
-			} else if(!this.closeFromInner) {
-				this.close();
+		valueCom:{
+			handler(val){
+				if (val) {
+					this.open();
+				} else if(!this.closeFromInner) {
+					this.close();
+				}
+				this.closeFromInner = false;
 			}
-			this.closeFromInner = false;
-		},
+		}
 	},
 	mounted() {
 		// 组件渲染完成时，检查value是否为true，如果是，弹出popup
-		this.valueCom && this.open();
+		if (this.valueCom) {
+			this.open();
+		}
 	},
-  methods: {
+	methods: {
 		// 判断传入的值，是否带有单位，如果没有，就默认用rpx单位
 		getUnitValue(val) {
 			if(/(%|px|rpx|auto)$/.test(val)) return val;
@@ -330,7 +343,7 @@ export default {
 			// 如果this.popup为false，意味着为picker，actionsheet等组件调用了popup组件
 			if (this.popup == true) {
 				this.$emit('input', status);
-        this.$emit("update:modelValue", status);
+				this.$emit("update:modelValue", status);
 			}
 			this[param1] = status;
 			if(status) {
@@ -390,28 +403,28 @@ export default {
 	top: 0;
 	bottom: 0;
 	left: 0;
-	background-color: #ffffff;
+	background-color: var(--bgcolor, #ffffff);
 }
 
 .u-drawer-right {
 	right: 0;
 	top: 0;
 	bottom: 0;
-	background-color: #ffffff;
+	background-color: var(--bgcolor, #ffffff);
 }
 
 .u-drawer-top {
 	top: 0;
 	left: 0;
 	right: 0;
-	background-color: #ffffff;
+	background-color: var(--bgcolor, #ffffff);
 }
 
 .u-drawer-bottom {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	background-color: #ffffff;
+	background-color: var(--bgcolor, #ffffff);
 }
 
 .u-drawer-center {
@@ -434,7 +447,7 @@ export default {
 	display: block;
 	/* #endif */
 	position: relative;
-	background-color: #ffffff;
+	background-color: var(--bgcolor, #ffffff);
 }
 
 .u-drawer-content-visible.u-drawer-center {

@@ -21,7 +21,7 @@
 							v-for="(item, index) in options"
 							:key="index"
 							:title-style="{
-								color: value === item.value ? activeColor : inactiveColor
+								color: valueCom === item.value ? activeColor : inactiveColor
 							}"
 						>
 							<u-icon
@@ -43,7 +43,7 @@
 /**
  * dropdown-item 下拉菜单
  * @description 该组件一般用于向下展开菜单，同时可切换多个选项卡的场景
- * @tutorial http://uviewui.com/components/dropdown.html
+ * @tutorial https://vkuviewdoc.fsq.pub/components/dropdown.html
  * @property {String | Number} v-model 双向绑定选项卡选择值
  * @property {String} title 菜单项标题
  * @property {Array[Object]} options 选项数据，如果传入了默认slot，此参数无效
@@ -97,7 +97,7 @@ export default {
 	},
 	computed: {
 		valueCom() {
-			// #ifndef VUE3
+			// #ifdef VUE2
 			return this.value;
 			// #endif
 

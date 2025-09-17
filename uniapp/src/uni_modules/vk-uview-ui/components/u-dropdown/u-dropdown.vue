@@ -37,7 +37,7 @@
 	/**
 	 * dropdown 下拉菜单
 	 * @description 该组件一般用于向下展开菜单，同时可切换多个选项卡的场景
-	 * @tutorial http://uviewui.com/components/dropdown.html
+	 * @tutorial https://vkuviewdoc.fsq.pub/components/dropdown.html
 	 * @property {String} active-color 标题和选项卡选中的颜色（默认#2979ff）
 	 * @property {String} inactive-color 标题和选项卡未选中的颜色（默认#606266）
 	 * @property {Boolean} close-on-click-mask 点击遮罩是否关闭菜单（默认true）

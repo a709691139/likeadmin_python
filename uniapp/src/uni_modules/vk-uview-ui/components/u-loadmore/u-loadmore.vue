@@ -5,7 +5,7 @@
 		marginTop: marginTop + 'rpx',
 		height: $u.addUnit(height)
 	}">
-		<u-line color="#d4d4d4" length="50"></u-line>
+		<u-line color="#d4d4d4" length="50" class="u-line"></u-line>
 		<!-- 加载中和没有更多的状态才显示两边的横线 -->
 		<view :class="status == 'loadmore' || status == 'nomore' ? 'u-more' : ''" class="u-load-more-inner">
 			<view class="u-loadmore-icon-wrap">
@@ -16,7 +16,7 @@
 				{{ showText }}
 			</view>
 		</view>
-		<u-line color="#d4d4d4" length="50"></u-line>
+		<u-line color="#d4d4d4" length="50" class="u-line"></u-line>
 	</view>
 </template>
 
@@ -59,7 +59,7 @@
 			},
 			// 字体颜色
 			color: {
-				type: String, 
+				type: String,
 				default: '#606266'
 			},
 			// 组件状态，loadmore-加载前的状态，loading-加载中的状态，nomore-没有更多的状态
@@ -160,42 +160,42 @@
 
 <style scoped lang="scss">
 	@import "../../libs/css/style.components.scss";
-	
+
 	/* #ifdef MP */
 	// 在mp.scss中，赋予了u-line为flex: 1，这里需要一个明确的长度，所以重置掉它
 	// 在组件内部，把组件名(u-line)当做选择器，在微信开发工具会提示不合法，但不影响使用
-	u-line {
+	.u-line {
 		flex: none;
 	}
 	/* #endif */
-	
+
 	.u-load-more-wrap {
 		@include vue-flex;
 		justify-content: center;
 		align-items: center;
 	}
-	
+
 	.u-load-more-inner {
 		@include vue-flex;
 		justify-content: center;
 		align-items: center;
 		padding: 0 12rpx;
 	}
-	
+
 	.u-more {
 		position: relative;
 		@include vue-flex;
 		justify-content: center;
 	}
-	
+
 	.u-dot-text {
 		font-size: 28rpx;
 	}
-	
+
 	.u-loadmore-icon-wrap {
 		margin-right: 8rpx;
 	}
-	
+
 	.u-loadmore-icon {
 		@include vue-flex;
 		align-items: center;
