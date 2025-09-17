@@ -8,7 +8,7 @@ class {{{ entity_name }}}ListIn(BaseModel):
     """{{{ function_name }}}列表参数"""
     {%- for column in columns %}
     {%- if column.is_query %}
-    {{{ column.java_field }}}: Union[{{{ column.java_type }}}, None] = Query()  # {{{ column.column_comment }}}
+    {{{ column.java_field }}}: Union[{{{ column.java_type }}}, None] = Query(None)  # {{{ column.column_comment }}}
     {%- endif %}
     {%- endfor %}
 
